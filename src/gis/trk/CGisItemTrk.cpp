@@ -665,8 +665,8 @@ void CGisItemTrk::drawItem(QPainter& p, const QRectF& viewport, CGisDraw * gis)
         }
 
         // calculate bounding box of text
-        QFontMetrics fm(p.font());
-        QRect rectText = fm.boundingRect(QRect(0,0,500,0), Qt::AlignLeft|Qt::AlignTop|Qt::TextWordWrap, str);
+        QFont f = CMainWindow::self().getMapFont();
+        QFontMetrics fm(f);
 
         // create info box
         int w = rectText.width()  + 5 + 5;
@@ -687,6 +687,7 @@ void CGisItemTrk::drawItem(QPainter& p, const QRectF& viewport, CGisDraw * gis)
 
         path1 = path1.united(path2);
 
+        p.setFont(f);
         // draw bubble
         p.setPen(CCanvas::penBorderGray);
         p.setBrush(CCanvas::brushBackWhite);
