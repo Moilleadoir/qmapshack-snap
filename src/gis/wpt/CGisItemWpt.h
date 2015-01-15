@@ -146,53 +146,58 @@ public:
     void setComment(const QString& str);
     void setDescription(const QString& str);
     void setLinks(const QList<link_t>& links);
+    void setImages(const QList<image_t>& imgs);
 
     const QString& getName() const
     {
-        return( wpt.name);
+        return wpt.name;
     }
     QString getInfo() const;
     QPointF getPosition() const
     {
-        return( QPointF(wpt.lon, wpt.lat));
+        return QPointF(wpt.lon, wpt.lat);
     }
     qint32 getElevation() const
     {
-        return( wpt.ele);
+        return wpt.ele;
     }
     qreal getProximity() const
     {
-        return( proximity);
+        return proximity;
     }
     const QDateTime& getTime() const
     {
-        return( wpt.time);
+        return wpt.time;
     }
     const QString& getIconName() const
     {
-        return( wpt.sym);
+        return wpt.sym;
     }
     const QString& getComment() const
     {
-        return( wpt.cmt);
+        return wpt.cmt;
     }
     const QString& getDescription() const
     {
-        return( wpt.desc);
+        return wpt.desc;
     }
     const geocache_t& getGeoCache() const
     {
-        return( geocache);
+        return geocache;
     }
     const QList<link_t>& getLinks() const
     {
-        return( wpt.links);
+        return wpt.links;
+    }
+    const QList<image_t>& getImages() const
+    {
+        return images;
     }
 
     IScrOpt * getScreenOptions(const QPoint &origin, IMouse * mouse);
     QPointF getPointCloseBy(const QPoint& )
     {
-        return( posScreen);
+        return posScreen;
     }
 
     void drawItem(QPainter& p, const QPolygonF& viewport, QList<QRectF>& blockedAreas, CGisDraw * gis);
@@ -201,7 +206,7 @@ public:
     bool isCloseTo(const QPointF& pos);
     bool isGeocache()
     {
-        return( geocache.hasData);
+        return geocache.hasData;
     }
     void gainUserFocus(bool yes);
 
