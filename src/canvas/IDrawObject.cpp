@@ -26,12 +26,6 @@ IDrawObject::IDrawObject(QObject *parent)
     , opacity(100)
     , minScale(NOFLOAT)
     , maxScale(NOFLOAT)
-    , showPolygons(true)
-    , showPolylines(true)
-    , showPOIs(true)
-    , cachePath(QDir::home().absoluteFilePath(".QMapShack"))
-    , cacheSizeMB(100)
-    , cacheExpiration(8)
 {
 }
 
@@ -44,12 +38,6 @@ void IDrawObject::saveConfig(QSettings& cfg)
     cfg.setValue("opacity", getOpacity());
     cfg.setValue("minScale", getMinScale());
     cfg.setValue("maxScale", getMaxScale());
-    cfg.setValue("showPolygons", getShowPolygons());
-    cfg.setValue("showPolylines", getShowPolylines());
-    cfg.setValue("showPOIs", getShowPOIs());
-    cfg.setValue("cachePath", cachePath);
-    cfg.setValue("cacheSizeMB", cacheSizeMB);
-    cfg.setValue("cacheExpiration", cacheExpiration);
 }
 
 void IDrawObject::loadConfig(QSettings& cfg)
@@ -57,12 +45,6 @@ void IDrawObject::loadConfig(QSettings& cfg)
     slotSetOpacity(cfg.value("opacity", getOpacity()).toDouble());
     setMinScale(cfg.value("minScale", getMinScale()).toDouble());
     setMaxScale(cfg.value("maxScale", getMaxScale()).toDouble());
-    slotSetShowPolygons(cfg.value("showPolygons", getShowPolygons()).toBool());
-    slotSetShowPolylines(cfg.value("showPolylines", getShowPolylines()).toBool());
-    slotSetShowPOIs(cfg.value("showPOIs", getShowPOIs()).toBool());
-    slotSetCachePath(cfg.value("cachePath", getCachePath()).toString());
-    slotSetCacheSize(cfg.value("cacheSizeMB", getCacheSize()).toInt());
-    slotSetCacheExpiration(cfg.value("cacheExpiration", getCacheExpiration()).toInt());
 
     emit sigPropertiesChanged();
 }

@@ -40,6 +40,7 @@ public:
     enum column_e
     {
         eColumnDecoration = 0
+        ,eColumnIcon = 0
         ,eColumnName = 1
     };
 
@@ -71,6 +72,7 @@ private slots:
     void slotCloseProject();
     void slotDeleteProject();
     void slotItemDoubleClicked(QTreeWidgetItem * item, int);
+    void slotItemChanged(QTreeWidgetItem * item, int column);
     void slotEditItem();
     void slotDeleteItem();
     void slotProjWpt();

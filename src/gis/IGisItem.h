@@ -195,7 +195,7 @@ public:
        @brief Get a short string with the items properties to be displayed in tool tips or similar
        @return A string object.
      */
-    virtual QString getInfo() const = 0;
+    virtual QString getInfo(bool allowEdit = false) const = 0;
 
     virtual const QString& getComment() const = 0;
     virtual const QString& getDescription() const = 0;
@@ -358,6 +358,8 @@ protected:
     virtual void genKey();
     /// setup the history structure right after the creation of the item
     void setupHistory();
+    /// update current history entry (e.g. to save the flags)
+    void updateHistory();
     /// convert a color string from GPX to a QT color
     QColor str2color(const QString& name);
     /// convertr a QT color to a string to be used in a GPX file

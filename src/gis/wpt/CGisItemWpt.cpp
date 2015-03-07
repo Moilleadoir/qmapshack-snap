@@ -212,7 +212,7 @@ void CGisItemWpt::getNewPosition(QPointF& pos)
 }
 
 
-QString CGisItemWpt::getInfo() const
+QString CGisItemWpt::getInfo(bool allowEdit) const
 {
     QString str = "<div style='font-weight: bold;'>" + getName() + "</div>";
 
@@ -313,7 +313,7 @@ void CGisItemWpt::setIcon()
         icon = getWptIconByName(wpt.sym, focus);
     }
 
-    QTreeWidgetItem::setIcon(CGisListWks::eColumnName,icon);
+    QTreeWidgetItem::setIcon(CGisListWks::eColumnIcon,icon);
 }
 
 void CGisItemWpt::setName(const QString& str)
