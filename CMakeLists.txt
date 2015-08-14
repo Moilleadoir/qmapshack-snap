@@ -8,6 +8,7 @@ set(QT_DEV_PATH   "C:\\Qt\\5.4\\msvc2013_64" CACHE PATH "Path to directory conta
 set(GDAL_DEV_PATH "C:\\GDAL" CACHE PATH "Path to directory containing GDAL include and lib, e.g. M:\\lib\\gdal")
 set(PROJ_DEV_PATH "C:\\PROJ" CACHE PATH "Path to directory containing PROJ.4 include and lib, e.g. M:\\lib\\PROJ")
 set(ZLIB_DEV_PATH "C:\\zlib" CACHE PATH "Path to directory containing zlib include and lib, e.g. M:\\lib\\zlib")
+set(ROUTINO_DEV_PATH "C:\\temp\\routino" CACHE PATH "Path to directory containing zlib include and lib, e.g. M:\\lib\\zlib")
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${QT_DEV_PATH})
 endif(WIN32)
 
@@ -16,7 +17,7 @@ set(APPLICATION_NAME qmapshack)
 
 set(APPLICATION_VERSION_MAJOR "1")
 set(APPLICATION_VERSION_MINOR "3")
-set(APPLICATION_VERSION_PATCH "0.post")
+set(APPLICATION_VERSION_PATCH "0.libroutino")
 
 add_definitions(-DVER_MAJOR=${APPLICATION_VERSION_MAJOR} -DVER_MINOR=${APPLICATION_VERSION_MINOR} -DVER_STEP=${APPLICATION_VERSION_PATCH} -DAPPLICATION_NAME=${PROJECT_NAME})
 
@@ -60,7 +61,6 @@ configure_file(config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 add_subdirectory(3rdparty/CGetOpt)
-add_subdirectory(3rdparty/RoutinoLib)
 add_subdirectory(src)
 
 

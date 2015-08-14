@@ -707,6 +707,10 @@ void IGisProject::updateItemCounters()
     totalElapsedSeconds = 0;
     totalElapsedSecondsMoving = 0;
 
+    QByteArray buffer;
+    QDataStream stream(&buffer, QIODevice::WriteOnly);
+    stream.setByteOrder(QDataStream::LittleEndian);
+    stream.setVersion(QDataStream::Qt_5_2);
 
     for(int i = 0; i < childCount(); i++)
     {
@@ -727,14 +731,21 @@ void IGisProject::updateItemCounters()
             totalDescend    += trk->getTotalDescend();
             totalElapsedSeconds += trk->getTotalElapsedSeconds();
             totalElapsedSecondsMoving += trk->getTotalElapsedSecondsMoving();
+            stream << trk->getHash();
         }
 
         CGisItemWpt * wpt = dynamic_cast<CGisItemWpt*>(item);
         if(wpt)
         {
             cntWpts++;
+            stream << wpt->getHash();
         }
     }
+    QCryptographicHash md5(QCryptographicHash::Md5);
+    md5.addData(buffer);
+
+    hashTrkWpt[1] = hashTrkWpt[0];
+    hashTrkWpt[0] = md5.result().toHex();
 }
 
 void IGisProject::blockUpdateItems(bool yes)

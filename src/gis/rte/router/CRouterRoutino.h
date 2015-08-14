@@ -23,6 +23,10 @@
 #include "ui_IRouterRoutino.h"
 #include <routino.h>
 
+#include <QPoint>
+
+class CProgressDialog;
+
 class CRouterRoutino : public IRouter, private Ui::IRouterRoutino
 {
     Q_OBJECT
@@ -37,6 +41,8 @@ public:
 
     QString getOptions();
 
+    static QPointer<CProgressDialog> progress;
+
 private slots:
     void slotSetupPaths();
 
@@ -45,6 +51,7 @@ private:
     void buildDatabaseList();
     void freeDatabaseList();
     void updateHelpText();
+    QString xlateRoutinoError(int err);
     QStringList dbPaths;
 };
 
