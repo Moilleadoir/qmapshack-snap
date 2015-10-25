@@ -18,6 +18,7 @@
 
 
 #include "CMainWindow.h"
+#include "canvas/CCanvas.h"
 #include "gis/CGisWidget.h"
 #include "gis/wpt/CGisItemWpt.h"
 #include "gis/wpt/CProjWpt.h"
@@ -30,14 +31,13 @@
 CScrOptWpt::CScrOptWpt(CGisItemWpt *wpt, const QPoint& point, IMouse *parent)
     : IScrOpt(parent)
 {
-    key         = wpt->getKey();
+    key = wpt->getKey();
 
     setupUi(this);
     setOrigin(point);
     label->setFont(CMainWindow::self().getMapFont());
     label->setText(wpt->getInfo());
     adjustSize();
-
 
     toolProj->setDisabled(wpt->isGeocache() || wpt->isOnDevice());
     toolMove->setDisabled(wpt->isGeocache() || wpt->isOnDevice());
@@ -49,19 +49,18 @@ CScrOptWpt::CScrOptWpt(CGisItemWpt *wpt, const QPoint& point, IMouse *parent)
     show();
 
     connect(toolDelete, SIGNAL(clicked()), this, SLOT(hide()));
-    connect(toolEdit, SIGNAL(clicked()), this, SLOT(hide()));
-    connect(toolCopy, SIGNAL(clicked()), this, SLOT(hide()));
-    connect(toolMove, SIGNAL(clicked()), this, SLOT(hide()));
-    connect(toolProj, SIGNAL(clicked()), this, SLOT(hide()));
+    connect(toolEdit,   SIGNAL(clicked()), this, SLOT(hide()));
+    connect(toolCopy,   SIGNAL(clicked()), this, SLOT(hide()));
+    connect(toolMove,   SIGNAL(clicked()), this, SLOT(hide()));
+    connect(toolProj,   SIGNAL(clicked()), this, SLOT(hide()));
     connect(toolBubble, SIGNAL(clicked()), this, SLOT(hide()));
 
     connect(toolDelete, SIGNAL(clicked()), this, SLOT(slotDelete()));
-    connect(toolEdit, SIGNAL(clicked()), this, SLOT(slotEdit()));
-    connect(toolCopy, SIGNAL(clicked()), this, SLOT(slotCopy()));
-    connect(toolMove, SIGNAL(clicked()), this, SLOT(slotMove()));
-    connect(toolProj, SIGNAL(clicked()), this, SLOT(slotProj()));
+    connect(toolEdit,   SIGNAL(clicked()), this, SLOT(slotEdit()));
+    connect(toolCopy,   SIGNAL(clicked()), this, SLOT(slotCopy()));
+    connect(toolMove,   SIGNAL(clicked()), this, SLOT(slotMove()));
+    connect(toolProj,   SIGNAL(clicked()), this, SLOT(slotProj()));
     connect(toolBubble, SIGNAL(clicked()), this, SLOT(slotBubble()));
-
 
     adjustSize();
 }
@@ -116,5 +115,5 @@ void CScrOptWpt::draw(QPainter& p)
     }
     item->drawHighlight(p);
 
-    CDraw::bubble2(*this, anchor, p);
+    CDraw::bubble(p, geometry(), anchor.toPoint());
 }

@@ -25,7 +25,6 @@
 #include <QRectF>
 
 #include "CMainWindow.h"
-
 inline void USE_ANTI_ALIASING(QPainter& p, bool useAntiAliasing)
 {
     p.setRenderHints(QPainter::TextAntialiasing|QPainter::Antialiasing|QPainter::SmoothPixmapTransform|QPainter::HighQualityAntialiasing, useAntiAliasing);
@@ -39,9 +38,9 @@ class CDraw
 {
 public:
 
-    static QPen penBorderBlue;
-    static QPen penBorderGray;
-    static QPen penBorderBlack;
+    static QPen   penBorderBlue;
+    static QPen   penBorderGray;
+    static QPen   penBorderBlack;
     static QBrush brushBackWhite;
     static QBrush brushBackYellow;
 
@@ -66,20 +65,20 @@ public:
     static void text(const QString& str, QPainter &p, const QRect  &r,      const QColor &color);
 
     /**
-       @brief Draw a cartoon bubble around a rectangular with the anchor at the bottom
-       @param rect      the rectangle to draw the bubble around
-       @param anchor    the anchor point
-       @param p         an active QPainter
-     */
-    static void bubble1(const QRect& rect, const QPointF &anchor, QPainter& p);
-    /**
-       @brief Draw a cartoon bubble around a widget with the anchor top of the widget
+       @brief Draw a cartoon bubble
 
-       @param widget    the widget to draw the bubble around
-       @param anchor    the anchor point
-       @param p         an active QPainter
+       `pointerBasePos` denotes the position of the pointer's base, where 0 is `at the very left of the content`, and 1 is `at the very right`.
+       Be careful with small values (near 0) or large values (near 1) for pointerBasePos, this might lead to incorrect drawing,
+       especially if pointerBaseWidth is large.
+       If is larger than 1, a value in pixels is assumed.
+
+       @param p                 An active QPainter
+       @param contentRect       The area the actual content will be in
+       @param pointerPos        The position of the pointer's head
+       @param pointerBaseWidth  The width of the pointer
+       @param pointerBasePos    The (relative) location of the pointer (in percent / pixels)
      */
-    static void bubble2(const QWidget &widget, const QPointF &anchor, QPainter& p);
+    static QPoint bubble(QPainter &p, const QRect &contentRect, const QPoint &pointerPos, int pointerBaseWidth = 20, float pointerBasePos = .5f);
 
 private:
     /**

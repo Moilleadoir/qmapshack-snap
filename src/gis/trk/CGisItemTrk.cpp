@@ -27,8 +27,8 @@
 #include "gis/trk/CScrOptTrk.h"
 #include "gis/trk/CSelectActivity.h"
 #include "gis/wpt/CGisItemWpt.h"
-#include "helpers/CDraw.h"
 #include "helpers/CProgressDialog.h"
+#include "helpers/CDraw.h"
 #include "plot/IPlot.h"
 
 #include <QtWidgets>
@@ -1662,13 +1662,14 @@ void CGisItemTrk::drawItem(QPainter& p, const QRectF& viewport, CGisDraw * gis)
             h += 5 + fm.height() + 8;
         }
 
+        p.setFont(f);
 
+        // draw the bubble
         QRect box(0, 0, w, h);
         box.moveBottomLeft(anchor.toPoint() + QPoint(-50,-50));
-        CDraw::bubble1(box, anchor, p);
+        CDraw::bubble(p, box, anchor.toPoint(), 18 /* px */, 21 /* px */);
 
         p.save();
-        p.setFont(f);
         p.translate(box.topLeft());
 
         // draw progress bar distance
@@ -2014,7 +2015,7 @@ bool CGisItemTrk::setMouseFocusByTime(quint32 time, focusmode_e fmode, const QSt
 
     if(time != NOTIME)
     {
-        /// @todo: optimze search by single out segment and then do a binary search
+        /// @todo: optimize search by single out segment and then do a binary search
 
         qreal delta = totalElapsedSeconds;
 

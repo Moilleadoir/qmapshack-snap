@@ -23,10 +23,11 @@
 #include <QImage>
 #include <QPointF>
 #include <QtMath>
+#include <QDebug>
 
-QPen CDraw::penBorderBlue(QColor(10,10,150,220),2);
-QPen CDraw::penBorderGray(Qt::lightGray,2);
-QPen CDraw::penBorderBlack(QColor(0,0,0,200),2);
+QPen   CDraw::penBorderBlue(QColor(10,10,150,220),2);
+QPen   CDraw::penBorderGray(Qt::lightGray,2);
+QPen   CDraw::penBorderBlack(QColor(0,0,0,200),2);
 QBrush CDraw::brushBackWhite(QColor(255,255,255,255));
 QBrush CDraw::brushBackYellow(QColor(0xff, 0xff, 0xcc, 0xE0));
 
@@ -151,41 +152,37 @@ void CDraw::text(const QString &str, QPainter &p, const QRect &r, const QColor &
     p.drawText(r, Qt::AlignCenter, str);
 }
 
-
-void CDraw::bubble1(const QRect& rect, const QPointF &anchor, QPainter& p)
+QPoint CDraw::bubble(QPainter &p, const QRect &contentRect, const QPoint &pointerPos, int pointerBaseWidth, float pointerBasePos)
 {
-    // create bubble path
-    QPainterPath path1;
-    path1.addRoundedRect(rect,5,5);
+    QPainterPath bubblePath;
+    bubblePath.addRoundedRect(contentRect, 5, 5);
 
-    QPolygonF poly2;
-    poly2 << anchor << (rect.bottomLeft() + QPointF(10,-5)) << (rect.bottomLeft() + QPointF(30,-5)) << anchor;
-    QPainterPath path2;
-    path2.addPolygon(poly2);
+    // draw the arrow
+    int pointerBaseCenterX = (pointerBasePos <= 1)
+        ? contentRect.left() + (pointerBasePos * contentRect.width())
+        : contentRect.left() + (int) pointerBasePos;
 
-    path1 = path1.united(path2);
+    int pointerHeight = 0;
+    if(pointerPos.y() < contentRect.top())         pointerHeight = contentRect.top() - pointerPos.y()    + 1;
+    else if(pointerPos.y() > contentRect.bottom()) pointerHeight = contentRect.bottom() - pointerPos.y() - 1;
+    else {
+        qDebug() << "cannot calculate pointerHeight/pointerBaseCenterX due to invalid parameters";
+        return QPoint(0, 0);
+    }
 
-    // draw bubble
-    p.setPen(CDraw::penBorderGray);
+    QPolygonF pointerPoly;
+    pointerPoly << pointerPos
+                << QPointF(pointerBaseCenterX - pointerBaseWidth / 2, pointerPos.y() + pointerHeight)
+                << QPointF(pointerBaseCenterX + pointerBaseWidth / 2, pointerPos.y() + pointerHeight)
+                << pointerPos;
+
+    QPainterPath pointerPath;
+    pointerPath.addPolygon(pointerPoly);
+
+    p.setPen  (CDraw::penBorderGray);
     p.setBrush(CDraw::brushBackWhite);
-    p.drawPolygon(path1.toFillPolygon());
-}
 
-void CDraw::bubble2(const QWidget& widget, const QPointF &anchor, QPainter& p)
-{
-    QRectF rect = widget.rect();
-    rect.moveTopLeft(QPoint(widget.x(), widget.y()));
-    QPainterPath path1;
-    path1.addRoundedRect(rect,5,5);
+    p.drawPolygon(bubblePath.united(pointerPath).toFillPolygon());
 
-    QPolygonF poly2;
-    poly2 << anchor << QPointF(anchor.x() - 10, rect.top() + 1) << QPointF(anchor.x() + 10, rect.top() + 1) << anchor;
-    QPainterPath path2;
-    path2.addPolygon(poly2);
-
-    path1 = path1.united(path2);
-
-    p.setPen(penBorderGray);
-    p.setBrush(brushBackWhite);
-    p.drawPolygon(path1.toFillPolygon());
+    return contentRect.topLeft();
 }
