@@ -42,10 +42,12 @@ set( SRCS
     CMainWindow.cpp
     CAbout.cpp
     widgets/CTinySpinBox.cpp
+    widgets/CDoubleSpinBox.cpp
     widgets/CFadingIcon.cpp
     widgets/CTextEditWidget.cpp
     widgets/CHistoryListWidget.cpp
     widgets/CPhotoAlbum.cpp
+    widgets/CColorLegend.cpp
     helpers/CInputDialog.cpp
     helpers/CPositionDialog.cpp
     helpers/CWptIconDialog.cpp    
@@ -171,6 +173,7 @@ set( SRCS
     gis/trk/CSelectActivity.cpp
     gis/trk/CActivityTrk.cpp
     gis/trk/CGraphTrk.cpp
+    gis/trk/CKnownExtension.cpp
     gis/trk/filter/filter.cpp
     gis/trk/filter/CFilterDouglasPeuker.cpp
     gis/trk/filter/CFilterReset.cpp
@@ -252,10 +255,12 @@ set( HDRS
     CMainWindow.h
     CAbout.h
     widgets/CTinySpinBox.h
+    widgets/CDoubleSpinBox.h
     widgets/CFadingIcon.h
     widgets/CHistoryListWidget.h
     widgets/CTextEditWidget.h
     widgets/CPhotoAlbum.h
+    widgets/CColorLegend.h
     helpers/Platform.h
     helpers/CFileExt.h
     helpers/CAppOpts.h
@@ -382,6 +387,7 @@ set( HDRS
     gis/trk/CSelectActivity.h
     gis/trk/CActivityTrk.h
     gis/trk/CGraphTrk.h
+    gis/trk/CKnownExtension.h
     gis/trk/filter/CFilterDouglasPeuker.h
     gis/trk/filter/CFilterReset.h
     gis/trk/filter/CFilterDelete.h

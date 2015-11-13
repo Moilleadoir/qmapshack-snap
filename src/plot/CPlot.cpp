@@ -72,7 +72,7 @@ void CPlot::updateData()
                 continue;
             }
 
-            if(trkpt.speed != NOFLOAT)
+            if(getY(trkpt) != NOFLOAT)
             {
                 line << QPointF(getX(trkpt), getY(trkpt) * factor);
             }
