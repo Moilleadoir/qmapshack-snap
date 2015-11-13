@@ -17,6 +17,7 @@
 **********************************************************************************************/
 
 #include "gis/trk/CDetailsTrk.h"
+#include "gis/trk/CKnownExtension.h"
 #include "gis/trk/filter/CFilterDelete.h"
 #include "gis/trk/filter/CFilterDouglasPeuker.h"
 #include "gis/trk/filter/CFilterMedian.h"
@@ -42,11 +43,14 @@ CDetailsTrk::CDetailsTrk(CGisItemTrk& trk, QWidget *parent)
     setupUi(this);
 
     QPixmap icon(16,8);
+
     for(int i=0; i < TRK_N_COLORS; ++i)
     {
-        icon.fill(CGisItemTrk::lineColors[i]);
-        comboColor->addItem(icon,"",CGisItemTrk::lineColors[i]);
+        icon.fill(IGisItem::colorMap[i].color);
+        comboColor->addItem(icon, IGisItem::colorMap[i].name, IGisItem::colorMap[i].color);
     }
+
+    widgetColorLayout->setAlignment(Qt::AlignTop);
 
     int i = 0;
     const CActivityTrk::desc_t* actDesc = CActivityTrk::getActivityDescriptors();
@@ -56,8 +60,8 @@ CDetailsTrk::CDetailsTrk(CGisItemTrk& trk, QWidget *parent)
         QCheckBox * check = new QCheckBox(this);
         check->setText(desc.name);
         check->setIcon(QIcon(desc.iconLarge));
-        check->setProperty("flag", desc.flag);
-        check->setProperty("name", desc.name);
+        check->setProperty("flag",   desc.flag);
+        check->setProperty("name",   desc.name);
         check->setProperty("symbol", desc.iconLarge);
         check->setObjectName("check" + desc.objName);
 
@@ -68,6 +72,15 @@ CDetailsTrk::CDetailsTrk(CGisItemTrk& trk, QWidget *parent)
         i++;
     }
     layoutActivities->addItem(new QSpacerItem(0,0,QSizePolicy::Maximum, QSizePolicy::MinimumExpanding));
+
+    // the first entry `solid color`, it is always available
+    comboColorSource->addItem(QIcon("://icons/32x32/CSrcSolid.png"), "Solid color");
+    foreach(const QString &key, trk.getExistingColorizeSources())
+    {
+        const CKnownExtension &ext = CKnownExtension::get(key);
+        QIcon icon(ext.icon);
+        comboColorSource->addItem(icon, ext.known ? ext.name : key, key);
+    }
 
     setupGui();
 
@@ -161,27 +174,35 @@ CDetailsTrk::CDetailsTrk(CGisItemTrk& trk, QWidget *parent)
 
     SETTINGS;
     cfg.beginGroup("TrackDetails");
-    checkProfile->setChecked(cfg.value("showProfile", true).toBool());
-    checkSpeed->setChecked(cfg.value("showSpeed", true).toBool());
+    checkProfile->setChecked (cfg.value("showProfile",  true).toBool());
+    checkSpeed->setChecked   (cfg.value("showSpeed",    true).toBool());
     checkProgress->setChecked(cfg.value("showProgress", true).toBool());
-    splitter->restoreState(cfg.value("splitterSizes").toByteArray());
+    splitter->restoreState   (cfg.value("splitterSizes").toByteArray());
     treeWidget->header()->restoreState(cfg.value("trackPointListState").toByteArray());
     cfg.endGroup();
 
-    connect(checkProfile, SIGNAL(clicked()), this, SLOT(slotShowPlots()));
-    connect(checkSpeed, SIGNAL(clicked()), this, SLOT(slotShowPlots()));
-    connect(checkProgress, SIGNAL(clicked()), this, SLOT(slotShowPlots()));
-    connect(comboColor, SIGNAL(currentIndexChanged(int)), this, SLOT(slotColorChanged(int)));
-    connect(toolLock, SIGNAL(toggled(bool)), this, SLOT(slotChangeReadOnlyMode(bool)));
-    connect(treeWidget, SIGNAL(itemSelectionChanged()), this, SLOT(slotItemSelectionChanged()));
-    connect(textCmtDesc, SIGNAL(anchorClicked(QUrl)), this, SLOT(slotLinkActivated(QUrl)));
-    connect(labelInfo, SIGNAL(linkActivated(QString)), this, SLOT(slotLinkActivated(QString)));
+    connect(checkProfile,     SIGNAL(clicked()),                  this, SLOT(slotShowPlots()));
+    connect(checkSpeed,       SIGNAL(clicked()),                  this, SLOT(slotShowPlots()));
+    connect(checkProgress,    SIGNAL(clicked()),                  this, SLOT(slotShowPlots()));
+    connect(comboColor,       SIGNAL(currentIndexChanged(int)),   this, SLOT(slotColorChanged(int)));
+    connect(toolLock,         SIGNAL(toggled(bool)),              this, SLOT(slotChangeReadOnlyMode(bool)));
+    connect(treeWidget,       SIGNAL(itemSelectionChanged()),     this, SLOT(slotItemSelectionChanged()));
+    connect(textCmtDesc,      SIGNAL(anchorClicked(QUrl)),        this, SLOT(slotLinkActivated(QUrl)));
+    connect(labelInfo,        SIGNAL(linkActivated(QString)),     this, SLOT(slotLinkActivated(QString)));
 
-    connect(plotDistance, SIGNAL(sigMouseClickState(int)), this, SLOT(slotMouseClickState(int)));
-    connect(plotElevation, SIGNAL(sigMouseClickState(int)), this, SLOT(slotMouseClickState(int)));
-    connect(plotSpeed, SIGNAL(sigMouseClickState(int)), this, SLOT(slotMouseClickState(int)));
+    connect(plotDistance,     SIGNAL(sigMouseClickState(int)),    this, SLOT(slotMouseClickState(int)));
+    connect(plotElevation,    SIGNAL(sigMouseClickState(int)),    this, SLOT(slotMouseClickState(int)));
+    connect(plotSpeed,        SIGNAL(sigMouseClickState(int)),    this, SLOT(slotMouseClickState(int)));
+    connect(comboColorSource, SIGNAL(currentIndexChanged(int)),   this, SLOT(slotColorSourceChanged(int)));
+    connect(spinLimitHigh,    SIGNAL(valueChangedByStep(double)), this, SLOT(slotColorLimitHighChanged()));
+    connect(spinLimitHigh,    SIGNAL(editingFinished()),          this, SLOT(slotColorLimitHighChanged()));
+    connect(spinLimitLow,     SIGNAL(valueChangedByStep(double)), this, SLOT(slotColorLimitLowChanged()));
+    connect(spinLimitLow,     SIGNAL(editingFinished()),          this, SLOT(slotColorLimitLowChanged()));
 
-    connect(listHistory, SIGNAL(sigChanged()), this, SLOT(setupGui()));
+    connect(btnMaxFromData,   SIGNAL(clicked()),                  this, SLOT(slotLimitHighFromData()));
+    connect(btnMinFromData,   SIGNAL(clicked()),                  this, SLOT(slotLimitLowFromData()));
+
+    connect(listHistory,      SIGNAL(sigChanged()),               this, SLOT(setupGui()));
 
     slotShowPlots();
 }
@@ -190,15 +211,29 @@ CDetailsTrk::~CDetailsTrk()
 {
     SETTINGS;
     cfg.beginGroup("TrackDetails");
-    cfg.setValue("showProfile", checkProfile->isChecked());
-    cfg.setValue("showSpeed", checkSpeed->isChecked());
-    cfg.setValue("showProgress", checkProgress->isChecked());
-    cfg.setValue("splitterSizes", splitter->saveState());
+    cfg.setValue("showProfile",         checkProfile->isChecked());
+    cfg.setValue("showSpeed",           checkSpeed->isChecked());
+    cfg.setValue("showProgress",        checkProgress->isChecked());
+    cfg.setValue("splitterSizes",       splitter->saveState());
     cfg.setValue("trackPointListState", treeWidget->header()->saveState());
     cfg.endGroup();
 }
 
+void CDetailsTrk::slotLimitLowFromData()
+{
+    qreal min, max;
+    trk.getExtrema(min, max, trk.getColorizeSource());
+    spinLimitLow->setValue(min);
+    slotColorLimitLowChanged();
+}
 
+void CDetailsTrk::slotLimitHighFromData()
+{
+    qreal min, max;
+    trk.getExtrema(min, max, trk.getColorizeSource());
+    spinLimitHigh->setValue(max);
+    slotColorLimitHighChanged();
+}
 
 void CDetailsTrk::setupGui()
 {
@@ -212,17 +247,11 @@ void CDetailsTrk::setupGui()
     QString str, val, unit;
     bool isReadOnly = trk.isReadOnly();
 
-    tabWidget->widget(3)->setEnabled(!isReadOnly);
+    tabWidget->widget(4)->setEnabled(!isReadOnly);
+    tabWidget->widget(2)->setEnabled(!isReadOnly);
     tabWidget->widget(1)->setEnabled(!isReadOnly);
 
-    if(trk.isTainted())
-    {
-        labelTainted->show();
-    }
-    else
-    {
-        labelTainted->hide();
-    }
+    labelTainted->setVisible(trk.isTainted());
 
     labelInfo->setText(trk.getInfo(true));
     comboColor->setCurrentIndex(trk.getColorIdx());
@@ -236,28 +265,18 @@ void CDetailsTrk::setupGui()
         foreach(const CGisItemTrk::trkpt_t& trkpt, seg.pts)
         {
             QTreeWidgetItem * item = new QTreeWidgetItem();
-            item->setTextAlignment(eColNum,Qt::AlignLeft);
-            item->setTextAlignment(eColEle,Qt::AlignRight);
-            item->setTextAlignment(eColDelta,Qt::AlignRight);
-            item->setTextAlignment(eColDist,Qt::AlignRight);
-            item->setTextAlignment(eColAscend,Qt::AlignRight);
-            item->setTextAlignment(eColDescend,Qt::AlignRight);
-            item->setTextAlignment(eColSpeed,Qt::AlignRight);
+            item->setTextAlignment(eColNum,     Qt::AlignLeft);
+            item->setTextAlignment(eColEle,     Qt::AlignRight);
+            item->setTextAlignment(eColDelta,   Qt::AlignRight);
+            item->setTextAlignment(eColDist,    Qt::AlignRight);
+            item->setTextAlignment(eColAscend,  Qt::AlignRight);
+            item->setTextAlignment(eColDescend, Qt::AlignRight);
+            item->setTextAlignment(eColSpeed,   Qt::AlignRight);
 
-
-            if(trkpt.flags & CGisItemTrk::trkpt_t::eHidden)
+            QBrush b( trkpt.flags & CGisItemTrk::trkpt_t::eHidden ? Qt::gray : Qt::black );
+            for(int i = 0; i < eColMax; i++)
             {
-                for(int i = 0; i < eColMax; i++)
-                {
-                    item->setForeground(i,QBrush(Qt::gray));
-                }
-            }
-            else
-            {
-                for(int i = 0; i < eColMax; i++)
-                {
-                    item->setForeground(i,QBrush(Qt::black));
-                }
+                item->setForeground(i, b);
             }
 
             item->setText(eColNum,QString::number(trkpt.idxTotal));
@@ -352,16 +371,9 @@ void CDetailsTrk::setupGui()
     trk.getActivities().printSummary(str);
     labelActivityInfo->setText(str);
 
-    if((flags & CGisItemTrk::trkpt_t::eActMask) == 0)
-    {
-        labelActivityHelp->show();
-        labelActivityInfo->hide();
-    }
-    else
-    {
-        labelActivityHelp->hide();
-        labelActivityInfo->show();
-    }
+    bool hasActivity = 0 != (flags & CGisItemTrk::trkpt_t::eActMask);
+    labelActivityHelp->setVisible(!hasActivity);
+    labelActivityInfo->setVisible(hasActivity);
 
     plotTrack->setTrack(&trk);
     listHistory->setupHistory(trk);
@@ -376,6 +388,46 @@ void CDetailsTrk::setupGui()
             tabWidget->setTabText(idx, trk.getName());
         }
     }
+
+    int currentIdx = comboColorSource->findData(trk.getColorizeSource());
+    if(-1 == currentIdx) {
+        currentIdx = 0;
+    }
+
+    bool enabled = (0 < currentIdx);
+
+    spinLimitLow->setEnabled    (enabled);
+    spinLimitHigh->setEnabled   (enabled);
+    widgetColorLabel->setEnabled(enabled);
+    btnMinFromData->setEnabled  (enabled);
+    btnMaxFromData->setEnabled  (enabled);
+
+    comboColorSource->blockSignals(true);
+    comboColorSource->setCurrentIndex(currentIdx);
+    comboColorSource->blockSignals(false);
+
+    if(enabled)
+    {
+        const CKnownExtension &ext = CKnownExtension::get(comboColorSource->itemData(currentIdx).toString());
+
+        spinLimitLow->blockSignals(true);
+        spinLimitLow->setMinimum(ext.minimum);
+        spinLimitLow->setMaximum(ext.maximum);
+        spinLimitLow->setSuffix (ext.unit);
+        spinLimitLow->setValue  (trk.getColorizeLimitLow());
+        spinLimitLow->blockSignals(false);
+
+        spinLimitHigh->blockSignals(true);
+        spinLimitHigh->setMinimum(ext.minimum);
+        spinLimitHigh->setMaximum(ext.maximum);
+        spinLimitHigh->setSuffix (ext.unit);
+        spinLimitHigh->setValue  (trk.getColorizeLimitHigh());
+        spinLimitHigh->blockSignals(false);
+
+        widgetColorLabel->setMinimum(spinLimitLow->value());
+        widgetColorLabel->setMaximum(spinLimitHigh->value());
+        widgetColorLabel->setUnit(ext.unit);
+    } 
 
     originator = false;
     CCanvas::restoreOverrideCursor("CDetailsTrk::setupGui");
@@ -431,32 +483,9 @@ void CDetailsTrk::slotMouseClickState(int s)
 
 void CDetailsTrk::slotShowPlots()
 {
-    if(checkProfile->isChecked())
-    {
-        plotElevation->show();
-    }
-    else
-    {
-        plotElevation->hide();
-    }
-
-    if(checkSpeed->isChecked())
-    {
-        plotSpeed->show();
-    }
-    else
-    {
-        plotSpeed->hide();
-    }
-
-    if(checkProgress->isChecked())
-    {
-        plotDistance->show();
-    }
-    else
-    {
-        plotDistance->hide();
-    }
+    plotElevation->setVisible(checkProfile->isChecked());
+    plotSpeed->setVisible(checkSpeed->isChecked());
+    plotDistance->setVisible(checkProgress->isChecked());
 }
 
 void CDetailsTrk::slotColorChanged(int idx)
@@ -464,6 +493,36 @@ void CDetailsTrk::slotColorChanged(int idx)
     if(trk.getColorIdx() != idx)
     {
         trk.setColor(idx);
+    }
+}
+
+void CDetailsTrk::slotColorSourceChanged(int idx, float valueLow, float valueHigh)
+{
+    trk.setColorizeSource(comboColorSource->itemData(idx).toString());
+    setupGui();
+}
+
+void CDetailsTrk::slotColorLimitHighChanged()
+{
+    const double val = spinLimitHigh->value();
+    trk.setColorizeLimitHigh(val);
+    widgetColorLabel->setMaximum(val);
+
+    if(spinLimitLow->value() >= val)
+    {
+        spinLimitLow->setValue(val - .1f);
+    }
+}
+
+void CDetailsTrk::slotColorLimitLowChanged()
+{
+    const double val = spinLimitLow->value();
+    trk.setColorizeLimitLow(val);
+    widgetColorLabel->setMinimum(val);
+
+    if(spinLimitHigh->value() <= val)
+    {
+        spinLimitHigh->setValue(val + .1f);
     }
 }
 

@@ -26,6 +26,7 @@
 #include "gis/trk/CGisItemTrk.h"
 #include "gis/trk/CScrOptTrk.h"
 #include "gis/trk/CSelectActivity.h"
+#include "gis/trk/CKnownExtension.h"
 #include "gis/wpt/CGisItemWpt.h"
 #include "helpers/CDraw.h"
 #include "helpers/CProgressDialog.h"
@@ -35,70 +36,14 @@
 #include <QtXml>
 #include <proj_api.h>
 
+using std::numeric_limits;
+
 #define DEFAULT_COLOR       4
 #define MIN_DIST_CLOSE_TO   10
 #define MIN_DIST_FOCUS      200
 
 #define WPT_FOCUS_DIST_IN   (50*50)
 #define WPT_FOCUS_DIST_OUT  (200*200)
-
-const QColor CGisItemTrk::lineColors[TRK_N_COLORS] =
-{
-    Qt::black                     // 0
-    ,Qt::darkRed                 // 1
-    ,Qt::darkGreen               // 2
-    ,Qt::darkYellow              // 3
-    ,Qt::darkBlue                // 4
-    ,Qt::darkMagenta             // 5
-    ,Qt::darkCyan                // 6
-    ,Qt::lightGray               // 7
-    ,Qt::darkGray                // 8
-    ,Qt::red                     // 9
-    ,Qt::green                   // 10
-    ,Qt::yellow                  // 11
-    ,Qt::blue                    // 12
-    ,Qt::magenta                 // 13
-    ,Qt::cyan                    // 14
-    ,Qt::white                   // 15
-    ,Qt::transparent             // 16
-};
-
-const QString CGisItemTrk::bulletColors[TRK_N_COLORS] =
-{
-    // 0
-    QString("://icons/8x8/bullet_black.png")
-    // 1
-    ,QString("://icons/8x8/bullet_dark_red.png")
-    // 2
-    ,QString("://icons/8x8/bullet_dark_green.png")
-    // 3
-    ,QString("://icons/8x8/bullet_dark_yellow.png")
-    // 4
-    ,QString("://icons/8x8/bullet_dark_blue.png")
-    // 5
-    ,QString("://icons/8x8/bullet_dark_magenta.png")
-    // 6
-    ,QString("://icons/8x8/bullet_dark_cyan.png")
-    // 7
-    ,QString("://icons/8x8/bullet_gray.png")
-    // 8
-    ,QString("://icons/8x8/bullet_dark_gray.png")
-    // 9
-    ,QString("://icons/8x8/bullet_red.png")
-    // 10
-    ,QString("://icons/8x8/bullet_green.png")
-    // 11
-    ,QString("://icons/8x8/bullet_yellow.png")
-    // 12
-    ,QString("://icons/8x8/bullet_blue.png")
-    // 13
-    ,QString("://icons/8x8/bullet_magenta.png")
-    // 14
-    ,QString("://icons/8x8/bullet_cyan.png")
-    // 15
-    ,QString("://icons/8x8/bullet_white.png")
-    ,QString("")                 // 16
-};
 
 struct trkwpt_t
 {
@@ -117,7 +62,6 @@ struct activity_t
     QString name;
     QString icon;
 };
-
 
 const QPen CGisItemTrk::penBackground(Qt::white, 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
 
@@ -171,6 +115,7 @@ CGisItemTrk::CGisItemTrk(const CGisItemTrk& parentTrk, IGisProject *project, int
     key.project = project->getKey();
     key.device  = project->getDeviceKey();
     registeredPlots.clear();
+    notifyOnChange.clear();
 
     if(clone)
     {
@@ -179,11 +124,7 @@ CGisItemTrk::CGisItemTrk(const CGisItemTrk& parentTrk, IGisProject *project, int
         history.events.clear();
     }
 
-    if(parentTrk.isOnDevice())
-    {
-        flags |= eFlagWriteAllowed;
-    }
-    else if(!parentTrk.isReadOnly())
+    if(parentTrk.isOnDevice() || !parentTrk.isReadOnly())
     {
         flags |= eFlagWriteAllowed;
     }
@@ -191,7 +132,6 @@ CGisItemTrk::CGisItemTrk(const CGisItemTrk& parentTrk, IGisProject *project, int
     {
         flags &= ~eFlagWriteAllowed;
     }
-
 
     deriveSecondaryData();
     setupHistory();
@@ -205,7 +145,7 @@ CGisItemTrk::CGisItemTrk(const SGisLine& l, const QString& name, IGisProject * p
     trk.name = name;
     readTrackDataFromGisLine(l);
 
-    flags |=  eFlagCreatedInQms|eFlagWriteAllowed;
+    flags |= eFlagCreatedInQms | eFlagWriteAllowed;
     setColor(str2color(""));
 
     setupHistory();
@@ -269,6 +209,7 @@ CGisItemTrk::~CGisItemTrk()
         a copy of the list before we start to delete.
      */
     qDeleteAll(registeredPlots.toList());
+    qDeleteAll(notifyOnChange.toList());
 
     delete dlgDetails;
 }
@@ -276,6 +217,7 @@ CGisItemTrk::~CGisItemTrk()
 void CGisItemTrk::setSymbol()
 {
     setColor(str2color(trk.color));
+    notifyChange();
 }
 
 
@@ -310,11 +252,10 @@ void CGisItemTrk::getPolylineFromData(QPolygonF &l)
     {
         foreach(const trkpt_t &pt, seg.pts)
         {
-            if(pt.flags & trkpt_t::eHidden)
+            if(!(pt.flags & trkpt_t::eHidden))
             {
-                continue;
+                l << QPointF(pt.lon * DEG_TO_RAD, pt.lat * DEG_TO_RAD);
             }
-            l << QPointF(pt.lon * DEG_TO_RAD, pt.lat * DEG_TO_RAD);
         }
     }
 }
@@ -328,11 +269,10 @@ void CGisItemTrk::getPolylineFromData(SGisLine &l)
     {
         foreach(const trkpt_t &pt, seg.pts)
         {
-            if(pt.flags & trkpt_t::eHidden)
+            if(!(pt.flags & trkpt_t::eHidden))
             {
-                continue;
+                l << point_t(QPointF(pt.lon*DEG_TO_RAD, pt.lat * DEG_TO_RAD));
             }
-            l << point_t(QPointF(pt.lon*DEG_TO_RAD, pt.lat * DEG_TO_RAD));
         }
     }
 }
@@ -349,8 +289,8 @@ void CGisItemTrk::readTrackDataFromGisLine(const SGisLine &l)
     {
         seg.pts << trkpt_t();
 
-        trkpt_t& trkpt      = seg.pts.last();
-        const point_t& pt   = l[i];
+        trkpt_t& trkpt    = seg.pts.last();
+        const point_t& pt = l[i];
 
         trkpt.lon = pt.coord.x() * RAD_TO_DEG;
         trkpt.lat = pt.coord.y() * RAD_TO_DEG;
@@ -360,8 +300,8 @@ void CGisItemTrk::readTrackDataFromGisLine(const SGisLine &l)
         {
             seg.pts << trkpt_t();
 
-            trkpt_t& trkpt      = seg.pts.last();
-            const subpt_t& sub  = pt.subpts[n];
+            trkpt_t& trkpt     = seg.pts.last();
+            const subpt_t& sub = pt.subpts[n];
 
             trkpt.lon = sub.coord.x() * RAD_TO_DEG;
             trkpt.lat = sub.coord.y() * RAD_TO_DEG;
@@ -370,6 +310,7 @@ void CGisItemTrk::readTrackDataFromGisLine(const SGisLine &l)
     }
 
     deriveSecondaryData();
+    notifyChange();
 }
 
 void CGisItemTrk::registerPlot(IPlot * plot)
@@ -382,7 +323,23 @@ void CGisItemTrk::unregisterPlot(IPlot * plot)
     registeredPlots.remove(plot);
 }
 
+void CGisItemTrk::registerNotification(INotifiable *obj)
+{
+    notifyOnChange << obj;
+}
 
+void CGisItemTrk::unregisterNotification(INotifiable *obj)
+{
+    notifyOnChange.remove(obj);
+}
+
+void CGisItemTrk::notifyChange()
+{
+    foreach(INotifiable *obj, notifyOnChange)
+    {
+        obj->notify();
+    }
+}
 
 QString CGisItemTrk::getInfo(bool allowEdit) const
 {
@@ -512,31 +469,25 @@ QString CGisItemTrk::getInfoRange()
         str += QString("%4 %1:%2:%3").arg(hh,2,10,QChar('0')).arg(mm,2,10,QChar('0')).arg(ss,2,10,QChar('0')).arg(QChar(0x231a));
 
         IUnit::self().meter2speed(d/deltaTime, val, unit);
-        str += QString(", %3 %1%2\n").arg(val).arg(unit).arg(QChar(0x21A3));
+        str += QString(", %3 %1%2").arg(val).arg(unit).arg(QChar(0x21A3));
     }
-    else
-    {
-        str += "\n";
-    }
+    str += "\n";
 
-    qreal deltaAscend   = pt2->ascend  - pt1->ascend;
-    qreal deltaDescend  = pt2->descend - pt1->descend;
+    qreal deltaAscend  = pt2->ascend  - pt1->ascend;
+    qreal deltaDescend = pt2->descend - pt1->descend;
 
-    tmp       = qAtan(deltaAscend/d);
-    slope1    = qAbs(tmp * 360.0/(2 * M_PI));
-    slope2    = qTan(slope1 * DEG_TO_RAD) * 100;
+    tmp    = qAtan(deltaAscend/d);
+    slope1 = qAbs(tmp * 360.0/(2 * M_PI));
+    slope2 = qTan(slope1 * DEG_TO_RAD) * 100;
 
     IUnit::self().meter2elevation(deltaAscend, val, unit);
     str += QString("%3 %1%2 (%4%5, %6%)").arg(val).arg(unit).arg(QChar(0x2197)).arg(qRound(slope1)).arg(QChar(0260)).arg(qRound(slope2));
     if(timeIsValid)
     {
         IUnit::self().meter2speed(deltaAscend/deltaTime, val, unit);
-        str += QString(", %1%2\n").arg(val).arg(unit);
+        str += QString(", %1%2").arg(val).arg(unit);
     }
-    else
-    {
-        str += "\n";
-    }
+    str += "\n";
 
     tmp       = qAtan(deltaDescend/d);
     slope1    = qAbs(tmp * 360.0/(2 * M_PI));
@@ -547,15 +498,10 @@ QString CGisItemTrk::getInfoRange()
     if(timeIsValid)
     {
         IUnit::self().meter2speed(deltaDescend/deltaTime, val, unit);
-        str += QString(", %1%2\n").arg(val).arg(unit);
-    }
-    else
-    {
-        str += "\n";
+        str += QString(", %1%2").arg(val).arg(unit);
     }
 
-
-    return str;
+    return str + "\n";
 }
 
 QString CGisItemTrk::getInfoTrkPt(const trkpt_t& pt)
@@ -563,12 +509,10 @@ QString CGisItemTrk::getInfoTrkPt(const trkpt_t& pt)
     QString str, val1, unit1;
     if(totalElapsedSeconds != 0)
     {
-        str += IUnit::datetime2string(pt.time, false, QPointF(pt.lon, pt.lat) * DEG_TO_RAD) + "\n";
+        str += IUnit::datetime2string(pt.time, false, QPointF(pt.lon, pt.lat) * DEG_TO_RAD);
     }
-    else
-    {
-        str += "\n";
-    }
+    str += "\n";
+
     IUnit::self().meter2elevation(pt.ele, val1, unit1);
     str += QObject::tr("Ele.: %1 %2").arg(val1).arg(unit1);
     if(pt.slope1 != NOFLOAT)
@@ -592,8 +536,14 @@ QString CGisItemTrk::getInfoTrkPt(const trkpt_t& pt)
 
     foreach(const QString &key, keys)
     {
-        QStringList tags = key.split("|");
-        str += "\n" + tags.last() + ": " + pt.extensions[key].toString();
+        const CKnownExtension &ext = CKnownExtension::get(key);
+        if(ext.known)
+        {
+            str += "\n" + ext.name + ": " + pt.extensions[key].toString() + ext.unit;
+        } else {
+            QStringList tags = key.split("|");
+            str += "\n" + tags.last() + ": " + pt.extensions[key].toString();
+        }
     }
 
     if(more > 0)
@@ -761,6 +711,88 @@ void CGisItemTrk::getSelectedVisiblePoints(qint32& idx1, qint32& idx2)
     }
 }
 
+static inline void updateExtrema(CGisItemTrk::limits_t &extrema, qreal val)
+{
+    extrema = { qMin(extrema.min, val), qMax(extrema.max, val) };
+}
+
+void CGisItemTrk::updateExtremaAndExtensions()
+{
+    extrema = QHash<QString, limits_t>();
+    limits_t extremaSpeed = { numeric_limits<qreal>::max(), numeric_limits<qreal>::lowest() };
+    limits_t extremaSlope = { numeric_limits<qreal>::max(), numeric_limits<qreal>::lowest() };
+    limits_t extremaEle   = { numeric_limits<qreal>::max(), numeric_limits<qreal>::lowest() };
+
+    existingExtensions = QSet<QString>();
+    QSet<QString> nonRealExtensions;
+
+    foreach(const trkseg_t &seg, trk.segs)
+    {
+        foreach(const trkpt_t &pt, seg.pts)
+        {
+            if(pt.flags & trkpt_t::eHidden)
+            {
+                continue;
+            }
+
+            existingExtensions.unite(pt.extensions.keys().toSet());
+
+            foreach(const QString &key, pt.extensions.keys())
+            {
+                bool isReal = false;
+                qreal val = pt.extensions.value(key).toReal(&isReal);
+
+                if(isReal)
+                {
+                    const limits_t &current = extrema.value(key, { numeric_limits<qreal>::max(), numeric_limits<qreal>::lowest() });
+                    extrema[key] = { qMin(current.min, val), qMax(current.max, val) };
+                }
+                else
+                {
+                    nonRealExtensions << key;
+                }
+            }
+
+            if(NOFLOAT != pt.speed)
+            {
+                updateExtrema(extremaSpeed, pt.speed);
+            }
+
+            updateExtrema(extremaEle,   pt.ele);
+            updateExtrema(extremaSlope, pt.slope1);
+        }
+    }
+
+    if(extremaEle.min < extremaEle.max)
+    {
+        existingExtensions << "ele";
+        extrema["ele"] = extremaEle;
+    }
+
+    if(extremaSlope.min < extremaSlope.max)
+    {
+        existingExtensions << "slope";
+        extrema["slope"] = extremaSlope;
+    }
+
+    if(numeric_limits<qreal>::max() != extremaSpeed.min)
+    {
+        existingExtensions << "speed";
+        extrema["speed"] = extremaSpeed;
+    }
+
+    foreach(const QString &key, existingExtensions)
+    {
+        const limits_t &extr = extrema.value(key);
+        if(extr.max - extr.min < 0.1)
+        {
+            existingExtensions.remove(key);
+        }
+    }
+
+    existingExtensions.subtract(nonRealExtensions);
+}
+
 void CGisItemTrk::deriveSecondaryData()
 {
     qreal north = -90;
@@ -778,6 +810,7 @@ void CGisItemTrk::deriveSecondaryData()
     totalDescend            = NOFLOAT;
     totalElapsedSeconds     = NOTIME;
     totalElapsedSecondsMoving = NOTIME;
+
 
     // remove empty segments
     QVector<trkseg_t>::iterator i = trk.segs.begin();
@@ -836,9 +869,9 @@ void CGisItemTrk::deriveSecondaryData()
 
             if(lastTrkpt != 0)
             {
-                trkpt.deltaDistance     = GPS_Math_Distance(lastTrkpt->lon * DEG_TO_RAD, lastTrkpt->lat * DEG_TO_RAD, trkpt.lon * DEG_TO_RAD, trkpt.lat * DEG_TO_RAD);
-                trkpt.distance          = lastTrkpt->distance + trkpt.deltaDistance;
-                trkpt.elapsedSeconds    = trkpt.time.toMSecsSinceEpoch()/1000.0 - timestampStart;
+                trkpt.deltaDistance  = GPS_Math_Distance(lastTrkpt->lon * DEG_TO_RAD, lastTrkpt->lat * DEG_TO_RAD, trkpt.lon * DEG_TO_RAD, trkpt.lat * DEG_TO_RAD);
+                trkpt.distance       = lastTrkpt->distance + trkpt.deltaDistance;
+                trkpt.elapsedSeconds = trkpt.time.toMSecsSinceEpoch()/1000.0 - timestampStart;
 
                 // ascend descend
                 if(lastEle != NOFLOAT)
@@ -846,36 +879,29 @@ void CGisItemTrk::deriveSecondaryData()
                     qreal delta     = trkpt.ele - lastEle;
                     qreal absDelta  = qAbs(delta);
 
+                    trkpt.ascend  = lastTrkpt->ascend;
+                    trkpt.descend = lastTrkpt->descend;
+
                     if(absDelta > ASCEND_THRESHOLD)
                     {
                         if(delta > 0)
                         {
-                            trkpt.ascend  = lastTrkpt->ascend + delta;
-                            trkpt.descend = lastTrkpt->descend;
+                            trkpt.ascend  += delta;
                         }
                         else
                         {
-                            trkpt.ascend  = lastTrkpt->ascend;
-                            trkpt.descend = lastTrkpt->descend - delta;
+                            trkpt.descend -= delta;
                         }
                         lastEle = trkpt.ele;
-                    }
-                    else
-                    {
-                        trkpt.ascend     = lastTrkpt->ascend;
-                        trkpt.descend    = lastTrkpt->descend;
                     }
                 }
 
                 // time moving
+                trkpt.elapsedSecondsMoving = lastTrkpt->elapsedSecondsMoving;
                 qreal dt = (trkpt.time.toMSecsSinceEpoch() - lastTrkpt->time.toMSecsSinceEpoch()) / 1000.0;
                 if(dt > 0 && ((trkpt.deltaDistance / dt) > 0.2))
                 {
-                    trkpt.elapsedSecondsMoving = lastTrkpt->elapsedSecondsMoving + dt;
-                }
-                else
-                {
-                    trkpt.elapsedSecondsMoving = lastTrkpt->elapsedSecondsMoving;
+                    trkpt.elapsedSecondsMoving += dt;
                 }
             }
             else
@@ -884,12 +910,12 @@ void CGisItemTrk::deriveSecondaryData()
                 timestampStart  = timeStart.toMSecsSinceEpoch()/1000.0;
                 lastEle         = trkpt.ele;
 
-                trkpt.deltaDistance         = 0;
-                trkpt.distance              = 0;
-                trkpt.ascend                = 0;
-                trkpt.descend               = 0;
-                trkpt.elapsedSeconds        = 0;
-                trkpt.elapsedSecondsMoving  = 0;
+                trkpt.deltaDistance        = 0;
+                trkpt.distance             = 0;
+                trkpt.ascend               = 0;
+                trkpt.descend              = 0;
+                trkpt.elapsedSeconds       = 0;
+                trkpt.elapsedSecondsMoving = 0;
             }
 
             lastTrkpt = &trkpt;
@@ -958,13 +984,13 @@ void CGisItemTrk::deriveSecondaryData()
                 n++;
             }
 
-            qreal a         = qAtan((e2 - e1)/(d2 - d1));
-            trkpt.slope1    = qAbs(a * 360.0/(2 * M_PI));
-            trkpt.slope2    = qTan(trkpt.slope1 * DEG_TO_RAD) * 100;
+            qreal a      = qAtan((e2 - e1)/(d2 - d1));
+            trkpt.slope1 = a * 360.0/(2 * M_PI);
+            trkpt.slope2 = qTan(trkpt.slope1 * DEG_TO_RAD) * 100;
 
             if((t2 - t1) > 0)
             {
-                trkpt.speed    = (d2 - d1) / (t2 - t1);
+                trkpt.speed = (d2 - d1) / (t2 - t1);
             }
             else
             {
@@ -975,15 +1001,16 @@ void CGisItemTrk::deriveSecondaryData()
 
     if(lastTrkpt != 0)
     {
-        timeEnd                 = lastTrkpt->time;
-        totalDistance           = lastTrkpt->distance;
-        totalAscend             = lastTrkpt->ascend;
-        totalDescend            = lastTrkpt->descend;
-        totalElapsedSeconds     = lastTrkpt->elapsedSeconds;
+        timeEnd                   = lastTrkpt->time;
+        totalDistance             = lastTrkpt->distance;
+        totalAscend               = lastTrkpt->ascend;
+        totalDescend              = lastTrkpt->descend;
+        totalElapsedSeconds       = lastTrkpt->elapsedSeconds;
         totalElapsedSecondsMoving = lastTrkpt->elapsedSecondsMoving;
     }
 
     activities.update();
+    updateExtremaAndExtensions();
 
     foreach(IPlot * plot, registeredPlots)
     {
@@ -1083,8 +1110,8 @@ void CGisItemTrk::findWaypointsCloseBy(CProgressDialog& progress, quint32& curre
 
     foreach(const trkwpt_t &trkwpt, trkwpts)
     {
-        qreal minD      = WPT_FOCUS_DIST_IN;
-        qint32 index    = NOIDX;
+        qreal minD   = WPT_FOCUS_DIST_IN;
+        qint32 index = NOIDX;
 
         foreach(const pointDP &pt, line)
         {
@@ -1112,7 +1139,7 @@ void CGisItemTrk::findWaypointsCloseBy(CProgressDialog& progress, quint32& curre
                 minD  = WPT_FOCUS_DIST_IN;
             }
 
-            if(current  - lastCurrent > 100)
+            if(current - lastCurrent > 100)
             {
                 lastCurrent = current;
                 PROGRESS(current, return );
@@ -1150,7 +1177,7 @@ bool CGisItemTrk::isCloseTo(const QPointF& pos)
 
 void CGisItemTrk::gainUserFocus(bool yes)
 {
-    keyUserFocus    = yes ? key : key_t();
+    keyUserFocus = yes ? key : key_t();
 }
 
 void CGisItemTrk::looseUserFocus()
@@ -1576,13 +1603,153 @@ void CGisItemTrk::drawItem(QPainter& p, const QPolygonF& viewport, QList<QRectF>
         p.drawPolyline(l);
         CDraw::arrows(l, extViewport, p, 10, 80);
     }
-    penForeground.setColor(color);
-    p.setPen(penForeground);
-    foreach(const QPolygonF &l, lines)
+
+    if(colorSource.isEmpty())
     {
-        p.drawPolyline(l);
+        // use the track's ordinary color
+        penForeground.setColor(color);
+        p.setPen(penForeground);
+        foreach(const QPolygonF &l, lines)
+        {
+            p.drawPolyline(l);
+        }
+    }
+    else
+    {
+        drawColorized(p);
     }
     // -------------------------
+}
+
+void CGisItemTrk::drawColorized(QPainter &p)
+{
+    auto valueFunc = CKnownExtension::get(colorSource).valueFunc;
+
+    QImage colors(1, 256, QImage::Format_RGB888);
+    QPainter colorsPainter(&colors);
+
+    QLinearGradient colorsGradient(colors.rect().topLeft(), colors.rect().bottomLeft());
+    colorsGradient.setColorAt(1.00, QColor(  0,   0, 255)); // blue
+    colorsGradient.setColorAt(0.60, QColor(  0, 255,   0)); // green
+    colorsGradient.setColorAt(0.40, QColor(255, 255,   0)); // yellow
+    colorsGradient.setColorAt(0.00, QColor(255,   0,   0)); // red
+    colorsPainter.fillRect(colors.rect(), colorsGradient);
+
+    const qreal factor = CKnownExtension::get(colorSource).factor;
+
+    foreach(const trkseg_t &segment, trk.segs)
+    {
+        const trkpt_t *ptPrev = NULL;
+        QColor colorStart;
+
+        foreach(const trkpt_t &pt, segment.pts)
+        {
+            if(pt.flags & trkpt_t::eHidden)
+            {
+                continue;
+            }
+            if(NULL == ptPrev)
+            {
+                ptPrev = &pt;
+                continue;
+            }
+
+            float colorAt = ( factor * valueFunc(pt) - limitLow ) / (limitHigh - limitLow);
+            if(colorAt > 1.f) colorAt = 1.f;
+            if(colorAt < 0.f) colorAt = 0.f;
+
+            const QColor &colorEnd = colors.pixel(0, ((1.f - colorAt) * 255.f));
+            if(!colorStart.isValid())
+            {
+                colorStart = colorEnd;
+            }
+
+            QLinearGradient grad(lineSimple[ptPrev->idxVisible], lineSimple[pt.idxVisible]);
+            grad.setColorAt(0.f, colorStart);
+            grad.setColorAt(1.f, colorEnd);
+
+            QPen pen;
+            pen.setBrush(QBrush(grad));
+            pen.setWidth(3);
+
+            p.setPen(pen);
+            p.drawLine(lineSimple[ptPrev->idxVisible], lineSimple[pt.idxVisible]);
+
+            ptPrev = &pt;
+            colorStart = colorEnd;
+        }
+    }
+}
+
+void CGisItemTrk::getExtrema(qreal &min, qreal &max, const QString &source) const
+{
+    min = extrema.value(source).min * CKnownExtension::get(source).factor;
+    max = extrema.value(source).max * CKnownExtension::get(source).factor;
+}
+
+QStringList CGisItemTrk::getExistingColorizeSources() const
+{
+    QStringList known;
+    QStringList unknown;
+
+    foreach(const QString &key, existingExtensions)
+    {
+        if(CKnownExtension::isKnown(key))
+        {
+            known   << key;
+        } else {
+            unknown << key;
+        }
+    }
+
+    auto stringSort = [] (const QString &s1, const QString &s2)
+    {
+        return s1.toLower() < s2.toLower();
+    };
+
+    qSort(known.begin(),   known.end(),   stringSort);
+    qSort(unknown.begin(), unknown.end(), stringSort);
+
+    return known + unknown;
+}
+
+void CGisItemTrk::setColorizeSource(QString src)
+{
+    if(src != colorSource)
+    {
+        colorSource = src;
+
+        const CKnownExtension ext = CKnownExtension::get(src);
+        if(ext.known)
+        {
+            limitLow  = ext.defLimitLow;
+            limitHigh = ext.defLimitHigh;
+        } else {
+            getExtrema(limitLow, limitHigh, src);
+        }
+
+        notifyChange();
+        updateHistory();
+    }
+}
+
+void CGisItemTrk::setColorizeLimitLow(qreal limit)
+{
+    limitLow = limit;
+    notifyChange();
+    updateHistory();
+}
+
+void CGisItemTrk::setColorizeLimitHigh(qreal limit)
+{
+    limitHigh = limit;
+    notifyChange();
+    updateHistory();
+}
+
+const QString CGisItemTrk::getColorizeUnit() const
+{
+    return CKnownExtension::get(colorSource).unit;
 }
 
 void CGisItemTrk::drawItem(QPainter& p, const QRectF& viewport, CGisDraw * gis)
@@ -1687,7 +1854,7 @@ void CGisItemTrk::drawItem(QPainter& p, const QRectF& viewport, CGisDraw * gis)
         anchor *= DEG_TO_RAD;
         gis->convertRad2Px(anchor);
 
-        p.drawPixmap(anchor - QPointF(4,4), QPixmap(bulletColors[colorIdx]));
+        p.drawPixmap(anchor - QPointF(4,4), QPixmap(IGisItem::colorMap[colorIdx].bullet));
     }
 
     drawRange(p);
@@ -1788,13 +1955,12 @@ void CGisItemTrk::setLinks(const QList<link_t>& links)
 
 void CGisItemTrk::setColor(int idx)
 {
-    int N = sizeof(lineColors)/sizeof(QColor);
-    if(idx >= N)
+    if(idx < TRK_N_COLORS)
     {
-        return;
+        setColor(IGisItem::colorMap[idx].color);
+        changed(QObject::tr("Changed color"), "://icons/48x48/SelectColor.png");
+        notifyChange();
     }
-    setColor(lineColors[idx]);
-    changed(QObject::tr("Changed color"), "://icons/48x48/SelectColor.png");
 }
 
 void CGisItemTrk::setActivity(quint32 flag, const QString& name, const QString& icon)
@@ -1812,6 +1978,7 @@ void CGisItemTrk::setActivity(quint32 flag, const QString& name, const QString& 
 
     deriveSecondaryData();
     changed(QObject::tr("Changed activity to '%1' for complete track.").arg(name), icon);
+    notifyChange();
 }
 
 void CGisItemTrk::setActivity()
@@ -1886,35 +2053,29 @@ void CGisItemTrk::setActivity()
     rangeState  = eRangeStateIdle;
     deriveSecondaryData();
     changed(QObject::tr("Changed activity to '%1' for range(%2..%3).").arg(name).arg(idx1).arg(idx2), icon);
+    notifyChange();
 }
 
 
 void CGisItemTrk::setColor(const QColor& c)
 {
-    int n;
-    int N = sizeof(lineColors)/sizeof(QColor);
-
-    for(n = 0; n < N; n++)
+    colorIdx = DEFAULT_COLOR;
+    for(int n = 0; n < TRK_N_COLORS; n++)
     {
-        if(lineColors[n] == c)
+        if(c == IGisItem::colorMap[n].color)
         {
-            colorIdx    = n;
-            color       = lineColors[n];
-            bullet      = QPixmap(bulletColors[n]);
+            colorIdx = n;
             break;
         }
     }
 
-    if(n == N)
-    {
-        colorIdx    = DEFAULT_COLOR;
-        color       = lineColors[DEFAULT_COLOR];
-        bullet      = QPixmap(bulletColors[DEFAULT_COLOR]);
-    }
+    color  = IGisItem::colorMap[colorIdx].color;
+    qDebug() << color;
+    bullet = QPixmap(IGisItem::colorMap[colorIdx].bullet);
 
-    setIcon(color.name());
+    setIcon(color2str(color));
+    notifyChange();
 }
-
 
 void CGisItemTrk::setIcon(const QString& iconColor)
 {
@@ -2202,7 +2363,6 @@ void CGisItemTrk::publishMouseFocusRangeMode(const trkpt_t * pt, focusmode_e fmo
         dlgDetails->setMouseRangeFocus(mouseRange1, mouseRange2);
     }
 }
-
 void CGisItemTrk::publishMouseFocusNormalMode(const trkpt_t * pt, focusmode_e fmode)
 {
     switch(fmode)
