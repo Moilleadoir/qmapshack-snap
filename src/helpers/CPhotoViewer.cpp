@@ -142,30 +142,62 @@ void CPhotoViewer::paintEvent(QPaintEvent * e)
     p.drawPixmap(rectClose, QPixmap("://icons/32x32/Close.png"));
 }
 
+void CPhotoViewer::tryIdxStep(int delta)
+{
+    int prevIdx = idx;
+
+    idx += delta;
+    idx = qMin(idx, images.size() - 1);
+    idx = qMax(idx, 0);
+
+    if(prevIdx != idx)
+    {
+        setImageAtIdx(idx);
+        update();
+    }
+}
+
 
 void CPhotoViewer::mousePressEvent(QMouseEvent * e)
 {
     QPoint pos  = e->pos();
+
     if(rectClose.contains(pos))
     {
         reject();
     }
     else if(rectNext.contains(pos))
     {
-        if(idx != (images.size() - 1))
-        {
-            setImageAtIdx(++idx);
-            update();
-        }
+        tryIdxStep(1);
     }
     else if(rectPrev.contains(pos))
     {
-        if(idx != 0)
-        {
-            setImageAtIdx(--idx);
-            update();
-        }
+        tryIdxStep(-1);
+    }
+    else if(!rectImage.contains(pos))
+    {
+        reject();
     }
 
     e->accept();
+}
+
+void CPhotoViewer::keyPressEvent(QKeyEvent *e)
+{
+    switch(e->key())
+    {
+    case Qt::Key_Left:
+        tryIdxStep(-1);
+        break;
+
+    case Qt::Key_Right:
+        tryIdxStep(1);
+        break;
+
+    case Qt::Key_Q:
+        reject();
+        break;
+    }
+
+    QDialog::keyPressEvent(e);
 }

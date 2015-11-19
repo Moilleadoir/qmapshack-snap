@@ -546,7 +546,7 @@ QString CGisItemTrk::getInfoTrkPt(const trkpt_t& pt)
         const CKnownExtension &ext = CKnownExtension::get(key);
         if(ext.known)
         {
-            str += "\n" + ext.name + ": " + pt.extensions[key].toString() + ext.unit;
+            str += "\n" + ext.name + ": " + QString("%1%2").arg(ext.valueFunc(pt)).arg(ext.unit);
         }
         else
         {
@@ -788,15 +788,6 @@ void CGisItemTrk::updateExtremaAndExtensions()
     {
         existingExtensions << "speed";
         extrema["speed"] = extremaSpeed;
-    }
-
-    foreach(const QString &key, existingExtensions)
-    {
-        const limits_t &extr = extrema.value(key);
-        if(extr.max - extr.min < 0.1)
-        {
-            existingExtensions.remove(key);
-        }
     }
 
     existingExtensions.subtract(nonRealExtensions);
@@ -1869,6 +1860,9 @@ void CGisItemTrk::setColorizeSource(QString src)
         else
         {
             getExtrema(limitLow, limitHigh, src);
+            if(limitHigh - limitLow < 0.1) {
+                limitHigh = limitLow + 0.1;
+            }
         }
 
         notifyChange();
