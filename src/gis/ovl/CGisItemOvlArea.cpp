@@ -87,7 +87,7 @@ const QString CGisItemOvlArea::bulletColors[OVL_N_COLORS] =
     ,QString("://icons/8x8/bullet_cyan.png")
     // 15
     ,QString("://icons/8x8/bullet_white.png")
-    ,QString("")                 // 16
+    ,QString()                 // 16
 };
 
 
@@ -186,6 +186,17 @@ CGisItemOvlArea::~CGisItemOvlArea()
     {
         keyUserFocus.clear();
     }
+}
+
+IGisItem * CGisItemOvlArea::createClone()
+{
+    int idx = -1;
+    IGisProject * project = dynamic_cast<IGisProject*>(parent());
+    if(project)
+    {
+        idx = project->indexOfChild(this);
+    }
+    return new CGisItemOvlArea(*this, project, idx, true);
 }
 
 void CGisItemOvlArea::setSymbol()

@@ -144,6 +144,8 @@ public:
 
     virtual ~CGisItemTrk();
 
+    IGisItem * createClone() override;
+
     /**
        @brief Save track to GPX tree
        @param gpx   The <gpx> node to append by the track
@@ -631,6 +633,11 @@ private:
      */
     void deriveSecondaryData();
 
+    /**
+     * @brief Reset internal data like range selection and details dialog
+     */
+    void resetInternalData();
+
 
     /** @defgroup ExtremaExtensions Stuff related to calculation of extremas/extensions
 
@@ -836,6 +843,7 @@ public:
         return trk;
     }
 
+    void updateFromDB(quint64 id, QSqlDatabase& db) override;
 private:
     /// this is the GPX structure oriented data of the track
     trk_t trk;

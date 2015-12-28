@@ -152,38 +152,170 @@ void CDBProject::postStatus()
     CGisWidget::self().postEventForDb(info);
 }
 
-void CDBProject::updateItem(IGisItem * item, quint64 idItem)
+
+int CDBProject::checkForAction2(IGisItem * item, quint64 &idItem, QString& hashItem, QSqlQuery &query)
 {
-    QSqlQuery query(db);
+    int action = eActionNone;
 
-    // serialize complete history of item
-    QByteArray data;
-    QDataStream in(&data, QIODevice::WriteOnly);
-    in.setByteOrder(QDataStream::LittleEndian);
-    in.setVersion(QDataStream::Qt_5_2);
-    in << item->getHistory();
-
-    // prepare icon to be saved
-    QBuffer buffer;
-    buffer.open(QIODevice::ReadWrite);
-    QPixmap pixmap = item->getIcon();
-    pixmap.save(&buffer, "PNG");
-    buffer.seek(0);
-
-    query.prepare("UPDATE items SET type=:type, keyqms=:keyqms, icon=:icon, name=:name, comment=:comment, data=:data WHERE id=:id");
-    query.bindValue(":type",    item->type());
-    query.bindValue(":keyqms",  item->getKey().item);
-    query.bindValue(":icon",    buffer.data());
-    query.bindValue(":name",    item->getName());
-    query.bindValue(":comment", item->getInfo());
-    query.bindValue(":data", data);
+    query.prepare("SELECT hash, last_user, last_change FROM items WHERE id=:id");
     query.bindValue(":id", idItem);
-    QUERY_EXEC(throw -1);
+    QUERY_EXEC(throw eReasonQueryFail);
+
+    if(query.next())
+    {
+        QString hash    = query.value(0).toString();
+        QString user    = query.value(1).toString();
+        QString date    = query.value(2).toString();
+
+        if(hash == hashItem)
+        {
+            // there seems to be no difference
+            return action;
+        }
+
+        hashItem = hash;
+
+        QString msg = QObject::tr(
+            "The item %1 has been changed by %2 (%3). \n\n"
+            "To solve this conflict you can create and save a clone, force your version or drop "
+            "your version and take the one from the database"
+            ).arg(item->getNameEx()).arg(user).arg(date);
+
+        QMessageBox msgBox(QMessageBox::Question, QObject::tr("Conflict with database..."), msg, QMessageBox::NoButton, CMainWindow::self().getBestWidgetForParent());
+        QAbstractButton* pButClone  = msgBox.addButton(QObject::tr("Clone && Save"), QMessageBox::YesRole);
+        QAbstractButton* pButForce  = msgBox.addButton(QObject::tr("Force Save"), QMessageBox::ApplyRole);
+        QAbstractButton* pButUpdate = msgBox.addButton(QObject::tr("Take remote"), QMessageBox::DestructiveRole);
+        msgBox.addButton(QMessageBox::Abort);
+
+        msgBox.exec();
+
+        if(msgBox.clickedButton() == pButClone)
+        {
+            action = eActionClone;
+        }
+        else if(msgBox.clickedButton() == pButForce)
+        {
+            action = eActionUpdate;
+        }
+        else if(msgBox.clickedButton() == pButUpdate)
+        {
+            action = eActionReload;
+        }
+    }
+    else
+    {
+        // item has been removed. By throwing eReasonConflict
+        // the save procedure is restarted for the item and
+        // the item should be inserted into the database.
+        throw eReasonConflict;
+    }
+
+
+    return action;
 }
 
-quint64 CDBProject::insertItem(IGisItem * item)
+void CDBProject::updateItem(IGisItem *&item, quint64 idItem, QSqlQuery &query)
 {
-    QSqlQuery query(db);
+    // serialize complete history of item
+    QByteArray data;
+    QDataStream in(&data, QIODevice::WriteOnly);
+    in.setByteOrder(QDataStream::LittleEndian);
+    in.setVersion(QDataStream::Qt_5_2);
+    in << item->getHistory();
+
+    // prepare icon to be saved
+    QBuffer buffer;
+    buffer.open(QIODevice::ReadWrite);
+    QPixmap pixmap = item->getIcon();
+    pixmap.save(&buffer, "PNG");
+    buffer.seek(0);
+
+    QString hashInDb = item->getLastDatabaseHash();
+
+    query.prepare("UPDATE items SET type=:type, keyqms=:keyqms, icon=:icon, name=:name, comment=:comment, data=:data, hash=:hash WHERE id=:id AND hash=:oldhash");
+    query.bindValue(":type",    item->type());
+    query.bindValue(":keyqms",  item->getKey().item);
+    query.bindValue(":icon",    buffer.data());
+    query.bindValue(":name",    item->getName());
+    query.bindValue(":comment", item->getInfo());
+    query.bindValue(":data",    data);
+    query.bindValue(":hash",    item->getHash());
+    query.bindValue(":id",      idItem);
+    query.bindValue(":oldhash", hashInDb);
+    QUERY_EXEC(throw eReasonQueryFail);
+
+    if(query.numRowsAffected())
+    {
+        // the update has been successful.
+        // set current hash as database hash.
+        item->setLastDatabaseHash(idItem, db);
+    }
+    else
+    {
+        // there are two reasons why an update does not affect a row
+        // 1) the hash is different because another user changed the item
+        // 2) the id was not found because another user removed the item
+        // 3) the items was completely identical, therefore no row was affected.
+        int action = checkForAction2(item, idItem, hashInDb, query);
+
+        switch(action)
+        {
+        case eActionClone:
+        {
+            IGisItem * item2    = item->createClone();
+            quint64 idItem      = insertItem(item2, query);
+
+            delete item;
+            item = item2;
+
+            query.prepare("INSERT INTO folder2item (parent, child) VALUES (:parent, :child)");
+            query.bindValue(":parent", id);
+            query.bindValue(":child", idItem);
+            QUERY_EXEC(throw eReasonQueryFail);
+            break;
+        }
+
+        case eActionUpdate:
+        {
+            // hashInDb has been updated by checkForAction2() by the one stored in the database
+            // therefore the update should succeed now.
+            query.prepare("UPDATE items SET type=:type, keyqms=:keyqms, icon=:icon, name=:name, comment=:comment, data=:data, hash=:hash WHERE id=:id AND hash=:oldhash");
+            query.bindValue(":type",    item->type());
+            query.bindValue(":keyqms",  item->getKey().item);
+            query.bindValue(":icon",    buffer.data());
+            query.bindValue(":name",    item->getName());
+            query.bindValue(":comment", item->getInfo());
+            query.bindValue(":data",    data);
+            query.bindValue(":hash",    item->getHash());
+            query.bindValue(":id",      idItem);
+            query.bindValue(":oldhash", hashInDb);
+            QUERY_EXEC(throw eReasonQueryFail);
+
+            if(query.numRowsAffected())
+            {
+                item->setLastDatabaseHash(idItem, db);
+            }
+            else
+            {
+                // in the case someone updated the item between calling
+                // checkForAction2() and this update our update fails.
+                // In this case we throw eReasonConflict to restart the
+                // save procedure for this item.
+                throw eReasonConflict;
+            }
+            break;
+        }
+
+        case eActionReload:
+            item->updateFromDB(idItem, db);
+            break;
+        }
+    }
+}
+
+quint64 CDBProject::insertItem(IGisItem * item, QSqlQuery &query)
+{
+    quint64 idItem = 0;
 
     // serialize complete history of item
     QByteArray data;
@@ -199,42 +331,166 @@ quint64 CDBProject::insertItem(IGisItem * item)
     pixmap.save(&buffer, "PNG");
     buffer.seek(0);
 
-    query.prepare("INSERT INTO items (type, keyqms, icon, name, comment, data) VALUES (:type, :keyqms, :icon, :name, :comment, :data)");
+    query.prepare("INSERT INTO items (type, keyqms, icon, name, comment, data, hash) VALUES (:type, :keyqms, :icon, :name, :comment, :data, :hash)");
     query.bindValue(":type",    item->type());
     query.bindValue(":keyqms",  item->getKey().item);
     query.bindValue(":icon",    buffer.data());
     query.bindValue(":name",    item->getName());
     query.bindValue(":comment", item->getInfo());
-    query.bindValue(":data", data);
-    QUERY_EXEC(throw -1);
+    query.bindValue(":data",    data);
+    query.bindValue(":hash",    item->getHash());
+    QUERY_EXEC(throw eReasonQueryFail);
 
-    quint64 idItem = IDB::getLastInsertID(db, "items");
-    if(idItem == 0)
+    if(query.numRowsAffected())
     {
-        qDebug() << "childId equals 0. bad.";
-        throw -1;
+        idItem = IDB::getLastInsertID(db, "items");
+        if(idItem == 0)
+        {
+            qDebug() << "childId equals 0. bad.";
+            throw eReasonUnexpected;
+        }
+        item->setLastDatabaseHash(idItem, db);
+    }
+    else
+    {
+        throw eReasonConflict;
     }
 
     return idItem;
 }
 
+int CDBProject::checkForAction1(IGisItem * item, quint64& idItem, int& lastResult, QSqlQuery &query)
+{
+    int action = eActionNone;
+
+    // test if item exists in database
+    quint32 typeItem = 0;
+    query.prepare("SELECT id, type FROM items WHERE keyqms=:keyqms");
+    query.bindValue(":keyqms", item->getKey().item);
+    QUERY_EXEC(throw eReasonQueryFail);
+
+
+    if(query.next())
+    {
+        idItem      = query.value(0).toULongLong();
+        typeItem    = query.value(1).toUInt();
+
+        // check if relation already exists.
+        query.prepare("SELECT id FROM folder2item WHERE parent=:parent AND child=:child");
+        query.bindValue(":parent", id);
+        query.bindValue(":child", idItem);
+        QUERY_EXEC(throw eReasonQueryFail);
+
+        if(!query.next())
+        {
+            // item is already in database but folder relation does not exit
+            int result  = lastResult;
+
+            if(lastResult == CSelectSaveAction::eResultNone)
+            {
+                // Build the dialog to ask for user action
+
+                IGisItem * item1 = 0;
+
+                // load item from database for a compare
+                switch(typeItem)
+                {
+                case IGisItem::eTypeWpt:
+                    item1 = new CGisItemWpt(idItem, db, 0);
+                    break;
+
+                case IGisItem::eTypeTrk:
+                    item1 = new CGisItemTrk(idItem, db, 0);
+                    break;
+
+                case IGisItem::eTypeRte:
+                    item1 = new CGisItemRte(idItem, db, 0);
+                    break;
+
+                case IGisItem::eTypeOvl:
+                    item1 = new CGisItemOvlArea(idItem, db, 0);
+                    break;
+
+                default:
+                    ;
+                }
+
+                if(item1 == 0)
+                {
+                    qDebug() << "no item to compare!?.";
+                    throw eReasonUnexpected;
+                }
+
+                CSelectSaveAction dlg(item, item1, CMainWindow::self().getBestWidgetForParent());
+                dlg.exec();
+
+                result = dlg.getResult();
+                if(dlg.allOthersToo())
+                {
+                    lastResult = result;
+                }
+            }
+
+            if(result == CSelectSaveAction::eResultNone)
+            {
+                // no decision by user, cancel operation.
+                // this is different to a skip as a skip will
+                // just skip saving the data, but the item to folder
+                // link will be still processed.
+                return eActionNone;
+            }
+
+            // the item is in the database and has no relation to the folder -> update only if the user confirms.
+            action = eActionLink;
+
+            switch(result)
+            {
+            case CSelectSaveAction::eResultSave:
+                action |= eActionUpdate;
+                break;
+
+            case CSelectSaveAction::eResultSkip:
+                action |= eActionReload;
+                break;
+
+            case CSelectSaveAction::eResultClone:
+                action |= eActionClone;
+                break;
+            }
+        }
+        else
+        {
+            // the item is in the database and has a relation to the folder -> simply update item
+            action = eActionUpdate;
+        }
+    }
+    else
+    {
+        action = eActionInsert|eActionLink;
+    }
+
+    return action;
+}
+
+
 bool CDBProject::save()
 {
-    bool clearProjectChangeFlag = true;
-    int lastResult = CSelectSaveAction::eResultNone;
-
     QSqlQuery query(db);
+    bool stop       = false;
+    bool success    = true;
+    int lastResult  = CSelectSaveAction::eResultNone;
+
+
+    CEvtW2DAckInfo * info = new CEvtW2DAckInfo(true, getId(), db.connectionName());
 
     int N = childCount();
     PROGRESS_SETUP(QObject::tr("Save ..."), 0, N, CMainWindow::getBestWidgetForParent());
 
-    CEvtW2DAckInfo * info = new CEvtW2DAckInfo(true, getId(), db.connectionName());
-
-    try
+    for(int i = 0; (i < N) && !stop; i++)
     {
-        for(int i = 0; i < N; i++)
+        try
         {
-            PROGRESS(i, throw 0);
+            PROGRESS(i, throw eReasonCancel);
 
             IGisItem * item = dynamic_cast<IGisItem*>(child(i));
             if(item == 0)
@@ -249,153 +505,91 @@ bool CDBProject::save()
                 continue;
             }
 
-            // test if item exists in database
-            quint64 idItem      = 0;
-            quint32 typeItem    = 0;
-            query.prepare("SELECT id, type FROM items WHERE keyqms=:keyqms");
-            query.bindValue(":keyqms", item->getKey().item);
-            QUERY_EXEC(throw -1);
+            quint64 idItem = 0;
 
-            if(query.next())
+            int action = checkForAction1(item, idItem, lastResult, query);
+
+            if(action & eActionInsert)
             {
-                idItem      = query.value(0).toULongLong();
-                typeItem    = query.value(1).toUInt();
-
-                // check if relation already exists.
-                query.prepare("SELECT id FROM folder2item WHERE parent=:parent AND child=:child");
-                query.bindValue(":parent", id);
-                query.bindValue(":child", idItem);
-                QUERY_EXEC();
-
-                if(!query.next())
-                {
-                    // update dialog
-                    int result  = lastResult;
-
-                    if(lastResult == CSelectSaveAction::eResultNone)
-                    {
-                        IGisItem * item1 = 0;
-
-                        // load item from database for a compare
-                        switch(typeItem)
-                        {
-                        case IGisItem::eTypeWpt:
-                            item1 = new CGisItemWpt(idItem, db, 0);
-                            break;
-
-                        case IGisItem::eTypeTrk:
-                            item1 = new CGisItemTrk(idItem, db, 0);
-                            break;
-
-                        case IGisItem::eTypeRte:
-                            item1 = new CGisItemRte(idItem, db, 0);
-                            break;
-
-                        case IGisItem::eTypeOvl:
-                            item1 = new CGisItemOvlArea(idItem, db, 0);
-                            break;
-
-                        default:
-                            ;
-                        }
-
-                        if(item1 == 0)
-                        {
-                            qDebug() << "no item to compare!?.";
-                            throw -1;
-                        }
-
-
-                        CSelectSaveAction dlg(item, item1, &progress);
-                        dlg.exec();
-
-                        result = dlg.getResult();
-                        if(dlg.allOthersToo())
-                        {
-                            lastResult = result;
-                        }
-                    }
-                    if(result == CSelectSaveAction::eResultNone)
-                    {
-                        // no decision by user, cancel operation.
-                        // this is different to a skip as a skip will
-                        // just skip saving the data, but the item to folder
-                        // link will be still processed.
-                        clearProjectChangeFlag = false;
-                        continue;
-                    }
-
-                    // create relation
-                    query.prepare("INSERT INTO folder2item (parent, child) VALUES (:parent, :child)");
-                    query.bindValue(":parent", id);
-                    query.bindValue(":child", idItem);
-                    QUERY_EXEC(throw -1);
-
-                    if(result == CSelectSaveAction::eResultSave)
-                    {
-                        // the item is in the database and has no relation to the folder -> update only if the user confirms.
-                        updateItem(item, idItem);
-                    }
-                }
-                else
-                {
-                    // the item is in the database and has a relation to the folder -> simply update item
-                    updateItem(item, idItem);
-                }
+                idItem = insertItem(item, query);
             }
-            else
-            {
-                // the item is not in the database -> insert item and create relation to folder
-                idItem = insertItem(item);
 
-                // create relation
+            if(action & eActionUpdate)
+            {
+                updateItem(item, idItem, query);
+            }
+
+            if(action & eActionReload)
+            {
+                item->updateFromDB(idItem, db);
+            }
+
+
+            if(action & eActionClone)
+            {
+                IGisItem * item2 = item->createClone();
+                idItem = insertItem(item2, query);
+
+                delete item;
+                item = item2;
+            }
+
+            if((action & eActionLink) && (idItem != 0))
+            {
                 query.prepare("INSERT INTO folder2item (parent, child) VALUES (:parent, :child)");
                 query.bindValue(":parent", id);
                 query.bindValue(":child", idItem);
-                QUERY_EXEC(throw -1);
+                QUERY_EXEC(throw eReasonQueryFail);
             }
 
             info->keysChildren << item->getKey().item;
-            item->updateDecoration(IGisItem::eMarkNone, IGisItem::eMarkChanged);
+            item->updateDecoration(IGisItem::eMarkNone, IGisItem::eMarkChanged|IGisItem::eMarkNotPart|IGisItem::eMarkNotInDB);
         }
-
-        // serialize metadata of project
-        QByteArray data;
-        QDataStream in(&data, QIODevice::WriteOnly);
-        in.setByteOrder(QDataStream::LittleEndian);
-        in.setVersion(QDataStream::Qt_5_2);
-        *this >> in;
-
-        // update folder entry in database
-        query.prepare("UPDATE folders SET name=:name, comment=:comment, data=:data WHERE id=:id");
-        query.bindValue(":name", getName());
-        query.bindValue(":comment", getInfo());
-        query.bindValue(":data", data);
-        query.bindValue(":id", getId());
-        QUERY_EXEC(throw -1);
-
-        info->updateLostFound = true;
-        CGisWidget::self().postEventForDb(info);
-        if(clearProjectChangeFlag)
+        catch(reasons_e reason)
         {
-            setText(CGisListWks::eColumnDecoration,"");
+            switch(reason)
+            {
+            case eReasonQueryFail:
+                QMessageBox::critical(&progress, QObject::tr("Error"), QObject::tr("There was an unexpected database error:\n\n%1").arg(query.lastError().text()), QMessageBox::Abort);
+
+            case eReasonCancel:
+            case eReasonUnexpected:
+                stop    = true;
+                success = false;
+                break;
+
+            case eReasonConflict:
+                i--;
+                break;
+            }
         }
     }
-    catch(int n)
-    {
-        if(n < 0)
-        {
-            delete info;
-        }
-        else
-        {
-            info->updateLostFound = true;
-            CGisWidget::self().postEventForDb(info);
-        }
-        return false;
-    }
-    return true;
+
+    // serialize metadata of project
+    QByteArray data;
+    QDataStream in(&data, QIODevice::WriteOnly);
+    in.setByteOrder(QDataStream::LittleEndian);
+    in.setVersion(QDataStream::Qt_5_2);
+    *this >> in;
+
+    // update folder entry in database
+    query.prepare("UPDATE folders SET name=:name, comment=:comment, data=:data WHERE id=:id");
+    query.bindValue(":name", getName());
+    query.bindValue(":comment", getInfo());
+    query.bindValue(":data", data);
+    query.bindValue(":id", getId());
+    QUERY_EXEC(return false);
+
+    // update change flag
+    updateDecoration();
+
+    // report status to database view
+    info->updateLostFound = true;
+    CGisWidget::self().postEventForDb(info);
+
+    return success;
 }
+
 
 void CDBProject::showItems(CEvtD2WShowItems * evt)
 {
@@ -433,8 +627,21 @@ void CDBProject::showItems(CEvtD2WShowItems * evt)
          */
         if(gisItem && gisItem->isChanged())
         {
-            updateItem(gisItem, item.id);
-            gisItem->updateDecoration(IGisItem::eMarkNone, IGisItem::eMarkChanged);
+            bool success = true;
+            try
+            {
+                QSqlQuery query(db);
+                updateItem(gisItem, item.id, query);
+            }
+            catch(int)
+            {
+                success = false;
+            }
+
+            if(success)
+            {
+                gisItem->updateDecoration(IGisItem::eMarkNone, IGisItem::eMarkChanged);
+            }
         }
     }
 
@@ -457,5 +664,96 @@ void CDBProject::hideItems(CEvtD2WHideItems * evt)
 
     postStatus();
     setToolTip(CGisListWks::eColumnName, getInfo());
+}
+
+
+void CDBProject::update()
+{
+    if(isChanged())
+    {
+        QString msg = QObject::tr("The project '%1' is about to update itself from the database. However there are changes not saved.").arg(getName());
+        int res = QMessageBox::question(CMainWindow::self().getBestWidgetForParent(), QObject::tr("Save changes?"), msg, QMessageBox::Save|QMessageBox::Ignore|QMessageBox::Abort, QMessageBox::Save);
+
+        if(res == QMessageBox::Abort)
+        {
+            return;
+        }
+        if(res == QMessageBox::Save)
+        {
+            if(!save())
+            {
+                return;
+            }
+        }
+    }
+
+
+    QSqlQuery query(db);
+    query.prepare("SELECT date, name, data FROM folders WHERE id=:id");
+    query.bindValue(":id", id);
+    QUERY_EXEC(return );
+    query.next();
+
+    QString name    = query.value(1).toString();
+    QByteArray data = query.value(2).toByteArray();
+
+    if(!data.isEmpty())
+    {
+        QDataStream in(&data, QIODevice::ReadOnly);
+        in.setByteOrder(QDataStream::LittleEndian);
+        in.setVersion(QDataStream::Qt_5_2);
+        *this << in;
+        filename = db.connectionName();
+    }
+
+    setupName(name);
+    setToolTip(CGisListWks::eColumnName, getInfo());
+
+    const int N = childCount();
+    for(int i = 0; i < N; i++)
+    {
+        IGisItem * item = dynamic_cast<IGisItem*>(child(i));
+        if(item == nullptr)
+        {
+            continue;
+        }
+
+        query.prepare("SELECT id FROM items WHERE keyqms=:keyqms");
+        query.bindValue(":keyqms", item->getKey().item);
+        QUERY_EXEC(return );
+
+        if(query.next())
+        {
+            // item is in the database
+            quint64 idItem = query.value(0).toULongLong();
+
+            QSqlQuery query2(db);
+            query2.prepare("SELECT id FROM folder2item WHERE parent=:parent AND child=:child");
+            query2.bindValue(":parent", id);
+            query2.bindValue(":child", idItem);
+            query2.exec();
+
+            if(query2.next())
+            {
+                // item is connected to this project
+                item->updateFromDB(idItem, db);
+                item->updateDecoration(IGisItem::eMarkNone, IGisItem::eMarkChanged);
+            }
+            else
+            {
+                // item is not connected to this project
+                item->updateFromDB(idItem, db);
+                item->updateDecoration(IGisItem::eMarkNotPart|IGisItem::eMarkChanged, IGisItem::eMarkNone);
+            }
+
+        }
+        else
+        {
+            // item is not in the database at all.
+            item->updateDecoration(IGisItem::eMarkNotInDB|IGisItem::eMarkChanged, IGisItem::eMarkNone);
+        }
+    }
+
+    updateDecoration();
 }
 

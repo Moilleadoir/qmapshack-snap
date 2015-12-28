@@ -123,17 +123,17 @@ public:
     /**
        @brief Returns true if a project of given format can be saved, false if it cannot be saved (just as .slf atm)
      */
-    virtual bool canSave()
+    virtual bool canSave() const
     {
         return false;
     }
 
-    virtual const QString getFileDialogFilter()
+    virtual const QString getFileDialogFilter() const
     {
         return QString();
     }
 
-    virtual const QString getFileExtension()
+    virtual const QString getFileExtension() const
     {
         return QString();
     }
@@ -294,7 +294,7 @@ public:
         return totalElapsedSecondsMoving;
     }
 
-    bool doCorrelation()
+    bool doCorrelation() const
     {
         return !noCorrelation;
     }
@@ -344,7 +344,7 @@ public:
 
        @return True if project is valid
      */
-    bool  isValid() const
+    bool isValid() const
     {
         return valid;
     }
@@ -447,6 +447,7 @@ protected:
     void readMetadata(const QDomNode& xml, metadata_t& metadata);
     void updateItems();
     void updateItemCounters();
+    void updateDecoration();
 
     // Those are the URIs of the GPX extensions we support
     static const QString gpxx_ns;
@@ -459,29 +460,29 @@ protected:
     static const QString gpx_ns;
     static const QString xsi_ns;
 
+    QPointer<CDetailsPrj> dlgDetails;
+
     type_e type;
     QString key;
     QString filename;
-    bool valid = false;
-    bool noUpdate = false;
+    bool valid         = false;
+    bool noUpdate      = false;
     bool noCorrelation = false;
 
     metadata_t metadata;
     QString nameSuffix;
 
-    QPointer<CDetailsPrj> dlgDetails;
-
     sorting_e sorting = eSortNone;
 
     qint32 cntItemsByType[IGisItem::eTypeMax];
 
-    qint32 cntTrkPts = 0;
-    qint32 cntWpts   = 0;
+    qint32 cntTrkPts                 = 0;
+    qint32 cntWpts                   = 0;
 
-    qreal totalDistance = 0;
-    qreal totalAscend   = 0;
-    qreal totalDescend  = 0;
-    quint32 totalElapsedSeconds = 0;
+    qreal totalDistance             = 0;
+    qreal totalAscend               = 0;
+    qreal totalDescend              = 0;
+    quint32 totalElapsedSeconds       = 0;
     quint32 totalElapsedSecondsMoving = 0;
 
     QString hashTrkWpt[2];

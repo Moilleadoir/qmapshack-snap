@@ -58,6 +58,13 @@ public:
         {
         }
 
+        void reset()
+        {
+            histIdxInitial = NOIDX;
+            histIdxCurrent = NOIDX;
+            events.clear();
+        }
+
         qint32 histIdxInitial;
         qint32 histIdxCurrent;
         QList<history_event_t> events;
@@ -126,6 +133,8 @@ public:
     {
         eMarkNone      = 0
         ,eMarkChanged   = 0x00000001
+        ,eMarkNotPart   = 0x00000002
+        ,eMarkNotInDB   = 0x00000004
     };
 
     struct key_t
@@ -156,11 +165,16 @@ public:
     static QMutex mutexItems;
 
     /**
+       @brief If the item is part of a database project it will update itself with the database content
+     */
+    virtual void updateFromDB(quint64 id, QSqlDatabase& db);
+
+    /**
        @brief Update the visual representation of the QTreeWidgetItem
        @param enable
        @param disable
      */
-    virtual void updateDecoration(mark_e enable, mark_e disable);
+    virtual void updateDecoration(quint32 enable, quint32 disable);
 
     /**
        @brief Save the item's data into a GPX structure
@@ -185,6 +199,18 @@ public:
        @return The hash as a string reference.
      */
     const QString& getHash();
+
+    /**
+       @brief Get the hash stored in the database when the item was loaded
+
+       @return The hash as a string
+     */
+    const QString& getLastDatabaseHash();
+
+    /**
+       @brief Read the hash stored in the database
+     */
+    void setLastDatabaseHash(quint64 id, QSqlDatabase& db);
 
     /**
        @brief Get the icon attached to object
@@ -390,6 +416,16 @@ public:
     void cutHistory();
 
     /**
+       @brief Create a clone of itself and pass back the pointer
+
+       Add the cloned item to the project with the same index as the original
+
+       @return The pointer of the cloned item
+     */
+    virtual IGisItem * createClone() = 0;
+
+
+    /**
        @brief Remove all HTML tags from a string
        @param str the string
        @return A string without HTML tags
@@ -469,17 +505,24 @@ protected:
     /// call when ever you make a change to the item's data
     virtual void changed(const QString& what, const QString& icon);
 
-    virtual void loadFromDb(quint64 id, QSqlDatabase& db);
+
+    void loadFromDb(quint64 id, QSqlDatabase& db);
 
     bool isVisible(const QRectF& rect, const QPolygonF& viewport, CGisDraw * gis);
     bool isVisible(const QPointF& point, const QPolygonF& viewport, CGisDraw * gis);
 
+    /// see flags_e for possible flags
     quint32 flags = 0;
+    /// the item's unique key
     key_t key;
+    /// each item has an icon for the tree widget
     QPixmap icon;
+    /// the dimensions of the item
     QRectF boundingRect;
-
+    /// that's where the real data is. An item is completely defined by it's history
     history_t history;
+    /// the hash in the database when the item was loaded/saved
+    QString lastDatabaseHash;
 
     enum flags_e
     {

@@ -145,6 +145,18 @@ CGisItemRte::~CGisItemRte()
     }
 }
 
+IGisItem * CGisItemRte::createClone()
+{
+    int idx = -1;
+    IGisProject * project = dynamic_cast<IGisProject*>(parent());
+    if(project)
+    {
+        idx = project->indexOfChild(this);
+    }
+    return new CGisItemRte(*this, project, idx, true);
+}
+
+
 bool CGisItemRte::isCalculated()
 {
     bool yes = true;

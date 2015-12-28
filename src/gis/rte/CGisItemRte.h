@@ -103,6 +103,8 @@ public:
     CGisItemRte(CFitStream& stream, IGisProject * project);
     virtual ~CGisItemRte();
 
+    IGisItem * createClone() override;
+
     QDataStream& operator<<(QDataStream& stream);
     QDataStream& operator>>(QDataStream& stream) const;
 

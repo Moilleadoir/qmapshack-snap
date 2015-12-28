@@ -242,6 +242,29 @@ CGisItemTrk::~CGisItemTrk()
     delete propHandler;
 }
 
+IGisItem * CGisItemTrk::createClone()
+{
+    int idx = -1;
+    IGisProject * project = dynamic_cast<IGisProject*>(parent());
+    if(project)
+    {
+        idx = project->indexOfChild(this);
+    }
+    return new CGisItemTrk(*this, project, idx, true);
+}
+
+void CGisItemTrk::updateFromDB(quint64 id, QSqlDatabase& db)
+{
+    IGisItem::updateFromDB(id, db);
+
+    /*
+        as this will change the line significantly we better stop
+        all focus operations and close the detail dialog.
+     */
+    resetInternalData();
+}
+
+
 void CGisItemTrk::setSymbol()
 {
     setColor(str2color(trk.color));
@@ -256,13 +279,7 @@ void CGisItemTrk::setDataFromPolyline(const SGisLine &l)
         as this will change the line significantly we better stop
         all focus operations and close the detail dialog.
      */
-    mouseClickFocus = 0;
-    mouseMoveFocus  = 0;
-    mouseRange1     = 0;
-    mouseRange2     = 0;
-    rangeState      = eRangeStateIdle;
-
-    delete dlgDetails;
+    resetInternalData();
 
     readTrackDataFromGisLine(l);
 
@@ -791,6 +808,17 @@ void CGisItemTrk::updateExtremaAndExtensions()
     }
 
     existingExtensions.subtract(nonRealExtensions);
+}
+
+void CGisItemTrk::resetInternalData()
+{
+    mouseClickFocus = 0;
+    mouseMoveFocus  = 0;
+    mouseRange1     = 0;
+    mouseRange2     = 0;
+    rangeState      = eRangeStateIdle;
+
+    delete dlgDetails;
 }
 
 void CGisItemTrk::deriveSecondaryData()
@@ -2313,6 +2341,11 @@ bool CGisItemTrk::setMouseFocusByTotalIndex(qint32 idx, focusmode_e fmode, const
 
 const CGisItemTrk::trkpt_t * CGisItemTrk::getTrkPtByVisibleIndex(qint32 idx)
 {
+    if(idx == NOIDX)
+    {
+        return 0;
+    }
+
     foreach (const trkseg_t &seg, trk.segs)
     {
         foreach(const trkpt_t &pt, seg.pts)

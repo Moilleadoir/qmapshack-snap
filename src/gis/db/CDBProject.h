@@ -42,7 +42,7 @@ public:
      */
     void restoreDBLink();
 
-    virtual bool canSave() override
+    virtual bool canSave() const override
     {
         return true;
     }
@@ -99,6 +99,8 @@ public:
      */
     void hideItems(CEvtD2WHideItems * evt);
 
+    void update();
+
 protected:
     /**
        @brief Setup the items text with the name and suffix
@@ -113,17 +115,39 @@ protected:
      * @param item      the item itself
      * @param idItem    the 64bit database key
      */
-    void updateItem(IGisItem * item, quint64 idItem);
+    void updateItem(IGisItem *&item, quint64 idItem, QSqlQuery& query);
+
+
+    int checkForAction1(IGisItem * item, quint64 &idItem, int &lastResult, QSqlQuery& query);
+    int checkForAction2(IGisItem * item, quint64 &idItem, QString &hashItem, QSqlQuery& query);
 
     /**
      * @brief Add item to database
      * @param item      the item itself
      * @return The new 64bit database key
      */
-    quint64 insertItem(IGisItem * item);
+    quint64 insertItem(IGisItem * item, QSqlQuery& query);
 
     QSqlDatabase db;
     quint64 id = 0;
+
+    enum reasons_e
+    {
+        eReasonCancel     = 0
+        , eReasonQueryFail  = -1
+        , eReasonUnexpected = -2
+        , eReasonConflict   = -3
+    };
+
+    enum action_e
+    {
+        eActionNone = 0x00
+        , eActionLink = 0x01
+        , eActionUpdate = 0x02
+        , eActionInsert = 0x04
+        , eActionClone  = 0x08
+        , eActionReload = 0x10
+    };
 };
 
 #endif //CDBPROJECT_H

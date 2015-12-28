@@ -76,7 +76,7 @@ CGisListDB::CGisListDB(QWidget *parent)
             QString filename = cfg.value("filename","").toString();
             if(filename.isEmpty())
             {
-                QMessageBox::information(this, tr("Help..."), tr("Due to changes in the database system QMapShack forgot about the filename of your database '%1'. You have to select it again in the next step.").arg(name), QMessageBox::Ok);
+                QMessageBox::information(this, name, tr("Due to changes in the database system QMapShack forgot about the filename of your database '%1'. You have to select it again in the next step.").arg(name), QMessageBox::Ok);
                 filename = QFileDialog::getOpenFileName(this, tr("Select database file."), path, "QMapShack Database (*.db)");
                 if(filename.isEmpty())
                 {
@@ -88,9 +88,9 @@ CGisListDB::CGisListDB(QWidget *parent)
         }
         if(type == "MySQL")
         {
-            QString server = cfg.value("server","").toString();
-            QString user = cfg.value("user","").toString();
-            QString passwd = cfg.value("passwd","").toString();
+            QString server  = cfg.value("server","").toString();
+            QString user    = cfg.value("user","").toString();
+            QString passwd  = cfg.value("passwd","").toString();
 
             if(server.isEmpty() || user.isEmpty())
             {
@@ -117,7 +117,9 @@ CGisListDB::CGisListDB(QWidget *parent)
 
     menuDatabase        = new QMenu(this);
     menuDatabase->addAction(actionAddFolder);
+    actionUpdate        = menuDatabase->addAction(QIcon("://icons/32x32/DatabaseSync.png"), tr("Sync. with Database"), this, SLOT(slotUpdateDatabase()));
     actionDelDatabase   = menuDatabase->addAction(QIcon("://icons/32x32/DeleteOne.png"), tr("Remove Database"), this, SLOT(slotDelDatabase()));
+
 
     menuLostFound       = new QMenu(this);
     actionDelLostFound  = menuLostFound->addAction(QIcon("://icons/32x32/Empty.png"), tr("Empty"), this, SLOT(slotDelLostFound()));
@@ -578,3 +580,25 @@ void CGisListDB::slotItemChanged(QTreeWidgetItem * item, int column)
     }
 }
 
+void CGisListDB::slotUpdateDatabase()
+{
+    CGisListDBEditLock lock(true, this, "slotUpdateDatabase");
+
+    QList<QTreeWidgetItem*> items = selectedItems();
+    foreach(QTreeWidgetItem* item, items)
+    {
+        IDBFolder * folder = dynamic_cast<IDBFolder*>(item);
+        if(folder == nullptr)
+        {
+            continue;
+        }
+
+        if(folder->type() == IDBFolder::eTypeDatabase)
+        {
+            folder->update();
+
+            CEvtD2WReload * evt = new CEvtD2WReload(folder->getDBName());
+            CGisWidget::self().postEventForWks(evt);
+        }
+    }
+}

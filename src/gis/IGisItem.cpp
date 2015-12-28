@@ -59,7 +59,7 @@ const IGisItem::color_t IGisItem::colorMap[] =
     ,{"Magenta",     QColor(Qt::magenta),     QString("://icons/8x8/bullet_magenta.png")}
     ,{"Cyan",        QColor(Qt::cyan),        QString("://icons/8x8/bullet_cyan.png")}
     ,{"White",       QColor(Qt::white),       QString("://icons/8x8/bullet_white.png")}
-    ,{"Transparent", QColor(Qt::transparent), QString("")}
+    ,{"Transparent", QColor(Qt::transparent), QString()}
 };
 
 IGisItem::IGisItem(IGisProject *parent, type_e typ, int idx)
@@ -188,7 +188,7 @@ void IGisItem::genKey()
 void IGisItem::loadFromDb(quint64 id, QSqlDatabase& db)
 {
     QSqlQuery query(db);
-    query.prepare("SELECT data, keyqms FROM items WHERE id=:id");
+    query.prepare("SELECT data, keyqms, hash FROM items WHERE id=:id");
     query.bindValue(":id", id);
     QUERY_EXEC(return );
     if(query.next())
@@ -217,7 +217,40 @@ void IGisItem::loadFromDb(quint64 id, QSqlDatabase& db)
                 updateHistory();
             }
         }
+
+        lastDatabaseHash = query.value(2).toString();
     }
+}
+
+void IGisItem::updateFromDB(quint64 id, QSqlDatabase& db)
+{
+    QSqlQuery query(db);
+
+    query.prepare("SELECT hash FROM items WHERE id=:id");
+    query.bindValue(":id", id);
+    QUERY_EXEC(return );
+
+    /*
+        Test on the hash stored in the database. If the hash is
+        equal to the one stored in this item the item is up-to-date
+     */
+
+    if(query.next())
+    {
+        if(query.value(0).toString() == lastDatabaseHash)
+        {
+            return;
+        }
+    }
+    else
+    {
+        // no hash? better leave...
+        return;
+    }
+
+    // reset history and load item again
+    history.reset();
+    loadFromDb(id, db);
 }
 
 QString IGisItem::getNameEx() const
@@ -238,7 +271,7 @@ QString IGisItem::getNameEx() const
 }
 
 
-void IGisItem::updateDecoration(mark_e enable, mark_e disable)
+void IGisItem::updateDecoration(quint32 enable, quint32 disable)
 {
     // update text and icon
     setToolTip(CGisListWks::eColumnName,getInfo());
@@ -247,7 +280,7 @@ void IGisItem::updateDecoration(mark_e enable, mark_e disable)
 
     // update project if necessary
     IGisProject * project = dynamic_cast<IGisProject*>(parent());
-    if(project && (enable & eMarkChanged))
+    if(project && (enable & (eMarkChanged|eMarkNotPart|eMarkNotInDB)))
     {
         project->setChanged();
     }
@@ -258,12 +291,28 @@ void IGisItem::updateDecoration(mark_e enable, mark_e disable)
     mask &= ~disable;
     setData(1, Qt::UserRole, mask);
 
+    QString tt;
     QString str;
+    if(mask & eMarkNotPart)
+    {
+        tt  += tt.isEmpty() ? "" : "\n";
+        tt  += QObject::tr("The item is not part of the project in the database.");
+        str += "?";
+    }
+    if(mask & eMarkNotInDB)
+    {
+        tt  += tt.isEmpty() ? "" : "\n";
+        tt  += QObject::tr("The item is not in the database.");
+        str += "X";
+    }
     if(mask & eMarkChanged)
     {
+        tt  += tt.isEmpty() ? "" : "\n";
+        tt  += QObject::tr("The item might need to be saved");
         str += "*";
     }
     setText(CGisListWks::eColumnDecoration, str);
+    setToolTip(CGisListWks::eColumnDecoration, tt);
 }
 
 
@@ -491,6 +540,23 @@ const QString& IGisItem::getHash()
         return noKey;
     }
     return history.events[history.histIdxCurrent].hash;
+}
+
+
+const QString& IGisItem::getLastDatabaseHash()
+{
+    if(lastDatabaseHash.isEmpty())
+    {
+        lastDatabaseHash = getHash();
+    }
+
+    return lastDatabaseHash;
+}
+
+void IGisItem::setLastDatabaseHash(quint64 id, QSqlDatabase& db)
+{
+
+    lastDatabaseHash = getHash();
 }
 
 QColor IGisItem::str2color(const QString& name)
@@ -723,5 +789,5 @@ bool IGisItem::isVisible(const QPointF& point, const QPolygonF& viewport, CGisDr
 
 bool IGisItem::isChanged() const
 {
-    return text(CGisListWks::eColumnDecoration) == "*";
+    return text(CGisListWks::eColumnDecoration).contains('*');
 }
