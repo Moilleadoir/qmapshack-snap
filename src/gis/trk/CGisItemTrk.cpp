@@ -756,6 +756,7 @@ void CGisItemTrk::updateExtremaAndExtensions()
     limits_t extremaSpeed = { numeric_limits<qreal>::max(), numeric_limits<qreal>::lowest() };
     limits_t extremaSlope = { numeric_limits<qreal>::max(), numeric_limits<qreal>::lowest() };
     limits_t extremaEle   = { numeric_limits<qreal>::max(), numeric_limits<qreal>::lowest() };
+    limits_t extremaProgress= { numeric_limits<qreal>::max(), numeric_limits<qreal>::lowest() };
 
     existingExtensions = QSet<QString>();
     QSet<QString> nonRealExtensions;
@@ -790,6 +791,7 @@ void CGisItemTrk::updateExtremaAndExtensions()
             updateExtrema(extremaSpeed, pt.speed);
             updateExtrema(extremaEle,   pt.ele);
             updateExtrema(extremaSlope, pt.slope1);
+            updateExtrema(extremaProgress, pt.distance);
         }
     }
 
@@ -810,6 +812,13 @@ void CGisItemTrk::updateExtremaAndExtensions()
         existingExtensions << CKnownExtension::internalSpeed;
         extrema[CKnownExtension::internalSpeed] = extremaSpeed;
     }
+
+    if(numeric_limits<qreal>::max() != extremaProgress.min)
+    {
+        existingExtensions << CKnownExtension::internalProgress;
+        extrema[CKnownExtension::internalProgress] = extremaProgress;
+    }
+
 
     existingExtensions.subtract(nonRealExtensions);
 }
@@ -1043,6 +1052,7 @@ void CGisItemTrk::deriveSecondaryData()
     if(propHandler == nullptr)
     {
         propHandler = new CPropertyTrk(*this);
+        limitsGraph1.setSource(CKnownExtension::internalEle);
     }
     else
     {
@@ -1801,11 +1811,44 @@ void CGisItemTrk::drawColorized(QPainter &p)
     }
 }
 
-void CGisItemTrk::getExtrema(qreal &min, qreal &max, const QString &source) const
+
+qreal CGisItemTrk::getMin(const QString& source) const
 {
-    min = extrema.value(source).min * CKnownExtension::get(source).factor;
-    max = extrema.value(source).max * CKnownExtension::get(source).factor;
+    return extrema.value(source).min * CKnownExtension::get(source).factor;
 }
+
+qreal CGisItemTrk::getMax(const QString& source) const
+{
+    return extrema.value(source).max * CKnownExtension::get(source).factor;
+}
+
+qreal CGisItemTrk::getMinProp(const QString& source) const
+{
+    if(propHandler == nullptr)
+    {
+        return NOFLOAT;
+    }
+    return propHandler->propBySource(source).min;
+}
+
+qreal CGisItemTrk::getMaxProp(const QString& source) const
+{
+    if(propHandler == nullptr)
+    {
+        return NOFLOAT;
+    }
+    return propHandler->propBySource(source).max;
+}
+
+QString CGisItemTrk::getUnitProp(const QString& source) const
+{
+    if(propHandler == nullptr)
+    {
+        return QString();
+    }
+    return propHandler->propBySource(source).unit;
+}
+
 
 QStringList CGisItemTrk::getExistingDataSources() const
 {
@@ -1844,12 +1887,14 @@ void CGisItemTrk::setColorizeSource(QString src)
         const CKnownExtension ext = CKnownExtension::get(src);
         if(ext.known)
         {
-            limitLow  = ext.defLimitLow;
-            limitHigh = ext.defLimitHigh;
+            limitLow    = ext.defLimitLow;
+            limitHigh   = ext.defLimitHigh;
         }
         else
         {
-            getExtrema(limitLow, limitHigh, src);
+            limitLow    = getMin(src);
+            limitHigh   = getMax(src);
+
             if(limitHigh - limitLow < 0.1)
             {
                 limitHigh = limitLow + 0.1;

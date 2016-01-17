@@ -23,17 +23,18 @@
 #include <QVariant>
 #include <functional>
 
-using fOnChange = std::function<void(const QVariant&)>;
+using fValueOnChange = std::function<void(const QVariant&)>;
+using fMarkChanged   = std::function<void(void)>;
 
 class CValue
 {
 public:
-    CValue(const QString& cfgTag, const QVariant& initDefault, fOnChange onChange = nullptr);
+    CValue(const QString& cfgTag, const QVariant& initDefault, fMarkChanged markChanged, fValueOnChange onChange = nullptr);
     virtual ~CValue();
 
     enum mode_e
     {
-        eModeDefault
+        eModeSys
         , eModeUser
     };
 
@@ -45,20 +46,21 @@ public:
 
     QVariant val() const;
 
-    const QVariant operator=(const QVariant& v);
+    const QVariant& operator=(const QVariant& v);
 
 private:
     friend QDataStream& operator<<(QDataStream& stream, const CValue& v);
     friend QDataStream& operator>>(QDataStream& stream, CValue& v);
 
-    void updateDefault(const QString &tag, const QVariant& val);
+    void updateSys(const QString &tag, const QVariant& val);
 
-    mode_e mode = eModeDefault;
+    mode_e mode = eModeSys;
     QString cfgTag;
     QVariant initDefault;
     QVariant valUser;
 
-    fOnChange onChange;
+    fValueOnChange funcOnChange;
+    fMarkChanged funcMarkChanged;
 
     static QSet<CValue*> allValues;
 };

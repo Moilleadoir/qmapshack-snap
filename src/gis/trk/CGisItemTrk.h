@@ -22,6 +22,7 @@
 #include "gis/IGisItem.h"
 #include "gis/IGisLine.h"
 #include "gis/trk/CActivityTrk.h"
+#include "helpers/CLimit.h"
 #include "helpers/CValue.h"
 
 #include <QPen>
@@ -312,7 +313,8 @@ public:
 
     const QString getColorizeUnit() const;
 
-    void getExtrema(qreal &min, qreal &max, const QString &source) const;
+    qreal getMin(const QString& source) const;
+    qreal getMax(const QString& source) const;
 
 private:
     QString colorSource  = "";
@@ -846,6 +848,47 @@ public:
     }
 
     void updateFromDB(quint64 id, QSqlDatabase& db) override;
+
+private:
+    fGetLimit _getMin = [this](const QString& source)
+                        {
+                            return getMin(source);
+                        };
+
+    fGetLimit _getMax = [this](const QString& source)
+                        {
+                            return getMax(source);
+                        };
+
+    qreal   getMinProp(const QString& source) const;
+    qreal   getMaxProp(const QString& source) const;
+    QString getUnitProp(const QString& source) const;
+
+    fGetLimit _getMinProp = [this](const QString& source)
+                            {
+                                return getMinProp(source);
+                            };
+
+    fGetLimit _getMaxProp = [this](const QString& source)
+                            {
+                                return getMaxProp(source);
+                            };
+
+    fGetUnit _getUnitProp = [this](const QString& source)
+                            {
+                                return getUnitProp(source);
+                            };
+
+    fMarkChanged _markChanged = [this]()
+                                {
+                                    updateHistory(eVisualNone);
+                                };
+
+public:
+    CLimit limitsGraph1 {"TrackDetails/Graph1", _getMin, _getMax, _getMinProp, _getMaxProp, _getUnitProp, _markChanged};
+    CLimit limitsGraph2 {"TrackDetails/Graph2", _getMin, _getMax, _getMinProp, _getMaxProp, _getUnitProp, _markChanged};
+    CLimit limitsGraph3 {"TrackDetails/Graph3", _getMin, _getMax, _getMinProp, _getMaxProp, _getUnitProp, _markChanged};
+
 private:
     /// this is the GPX structure oriented data of the track
     trk_t trk;
@@ -899,21 +942,21 @@ private:
     QPen penBackground {Qt::white, qreal(penWidthBg), Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin};
 
 
-    fOnChange onChange = [this](const QVariant& val)
-                         {
-                             int w = qRound(3.0 * val.toDouble());
+    fValueOnChange onChange = [this](const QVariant& val)
+                              {
+                                  int w = qRound(3.0 * val.toDouble());
 
-                             penWidthFg = w;
-                             penWidthBg = w + 2;
-                             penWidthHi = w + 8;
+                                  penWidthFg = w;
+                                  penWidthBg = w + 2;
+                                  penWidthHi = w + 8;
 
-                             penForeground.setWidth(penWidthFg);
-                             penBackground.setWidth(penWidthBg);
-                         };
+                                  penForeground.setWidth(penWidthFg);
+                                  penBackground.setWidth(penWidthBg);
+                              };
 
 public:
-    CValue lineScale     {"TrackDetails/lineScale", 1.0, onChange};
-    CValue showArrows    {"TrackDetails/showArrows", true};
+    CValue lineScale     {"TrackDetails/lineScale", 1.0, _markChanged, onChange};
+    CValue showArrows    {"TrackDetails/showArrows", true, _markChanged};
 private:
     /**@}*/
 
