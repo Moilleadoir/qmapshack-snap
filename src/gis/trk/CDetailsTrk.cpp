@@ -102,13 +102,9 @@ CDetailsTrk::CDetailsTrk(CGisItemTrk& trk, QWidget *parent)
 
     updateData();
 
-    const CPropertyTrk * propHandler = trk.getPropertyHandler();
-    propHandler->fillComboBox(comboGraph2);
-    propHandler->fillComboBox(comboGraph3);
-
-    plot1 = new CPlotProfile(&trk, IPlot::eModeNormal, this);
-    plot2 = new CPlot(&trk, this);
-    plot3 = new CPlot(&trk, this);
+    plot1 = new CPlotProfile(&trk, trk.limitsGraph1, IPlot::eModeNormal, this);
+    plot2 = new CPlot(&trk, trk.limitsGraph2, this);
+    plot3 = new CPlot(&trk, trk.limitsGraph3, this);
 
     for(IPlot *plot : { static_cast<IPlot*>(plot1), static_cast<IPlot*>(plot2), static_cast<IPlot*>(plot3) })
     {
@@ -166,38 +162,31 @@ CDetailsTrk::CDetailsTrk(CGisItemTrk& trk, QWidget *parent)
     connect(spinLimitLow,     &CDoubleSpinBox::valueChangedByStep, this, &CDetailsTrk::slotColorLimitLowChanged);
     connect(spinLimitLow,     &CDoubleSpinBox::editingFinished,    this, &CDetailsTrk::slotColorLimitLowChanged);
 
-    void (QDoubleSpinBox:: *signal)(double) = &QDoubleSpinBox::valueChanged;
-    connect(spinLineWidth,    signal,                              this, &CDetailsTrk::slotLineWidth);
-    connect(checkWithArrows,  &QCheckBox::toggled,                 this, &CDetailsTrk::slotWithArrows);
-    connect(pushLineWidthDefault, &QPushButton::clicked,           this, &CDetailsTrk::slotSaveLineDefault);
+    connect(spinLineWidth,    static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &CDetailsTrk::slotLineWidth);
+    connect(checkWithArrows,  &QCheckBox::toggled, this, &CDetailsTrk::slotWithArrows);
 
-    connect(btnMaxFromData,   &QPushButton::clicked,               this, &CDetailsTrk::slotLimitHighFromData);
-    connect(btnMinFromData,   &QPushButton::clicked,               this, &CDetailsTrk::slotLimitLowFromData);
+    connect(toolStyleLimitMax,&QPushButton::clicked, this, &CDetailsTrk::slotLimitHighFromData);
+    connect(toolStyleLimitMin,&QPushButton::clicked, this, &CDetailsTrk::slotLimitLowFromData);
 
-    connect(listHistory,      &CHistoryListWidget::sigChanged,     this, &CDetailsTrk::updateData);
+    connect(toolUserLineWith, &QToolButton::toggled, this, &CDetailsTrk::slotLineWidthMode);
+    connect(toolUserArrow,    &QToolButton::toggled, this, &CDetailsTrk::slotWithArrowsMode);
+
+    connect(listHistory,      &CHistoryListWidget::sigChanged, this, &CDetailsTrk::updateData);
 
     connect(comboColor,       static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &CDetailsTrk::slotColorChanged);
     connect(comboColorSource, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &CDetailsTrk::slotColorSourceChanged);
     connect(comboGraph2,      static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &CDetailsTrk::slotSetupGraph);
     connect(comboGraph3,      static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &CDetailsTrk::slotSetupGraph);
 
+    setupGraphLimits(trk.limitsGraph1, toolLimitAutoGraph1, toolLimitUsrGraph1, toolLimitSysGraph1, spinMinGraph1, spinMaxGraph1);
+    setupGraphLimits(trk.limitsGraph2, toolLimitAutoGraph2, toolLimitUsrGraph2, toolLimitSysGraph2, spinMinGraph2, spinMaxGraph2);
+    setupGraphLimits(trk.limitsGraph3, toolLimitAutoGraph3, toolLimitUsrGraph3, toolLimitSysGraph3, spinMinGraph3, spinMaxGraph3);
+
     // setting up the graph properties will trigger the signals
     // this is good because the signals are connected at this point
     // invoking the slots
-    cfg.beginGroup("TrackDetails");
-    int i = comboGraph2->findData(cfg.value("propGraph2", CKnownExtension::internalSpeed).toString());
-    if(i != NOIDX)
-    {
-        comboGraph2->setCurrentIndex(i);
-    }
-
-    i = comboGraph3->findData(cfg.value("propGraph3","progress").toString());
-    if(i != NOIDX)
-    {
-        comboGraph3->setCurrentIndex(i);
-    }
-    cfg.endGroup();
-
+    loadGraphSource(comboGraph2, 2, CKnownExtension::internalSpeed);
+    loadGraphSource(comboGraph3, 3, CKnownExtension::internalProgress);
 
     slotShowPlots();
 }
@@ -209,26 +198,18 @@ CDetailsTrk::~CDetailsTrk()
     cfg.setValue("showGraph1", checkGraph1->isChecked());
     cfg.setValue("showGraph2", checkGraph2->isChecked());
     cfg.setValue("showGraph3", checkGraph3->isChecked());
-
-    if(comboGraph2->currentIndex() != 0)
-    {
-        cfg.setValue("propGraph2", comboGraph2->currentData().toString());
-    }
-    if(comboGraph3->currentIndex() != 0)
-    {
-        cfg.setValue("propGraph3", comboGraph3->currentData().toString());
-    }
-
     cfg.setValue("splitterSizes",       splitter->saveState());
     cfg.setValue("trackPointListState", treeWidget->header()->saveState());
     cfg.setValue("visibleTab",          tabWidget->currentIndex());
     cfg.endGroup();
+
+    saveGraphSource(comboGraph2, 2);
+    saveGraphSource(comboGraph3, 3);
 }
 
 void CDetailsTrk::slotLimitLowFromData()
 {
-    qreal min, max;
-    trk.getExtrema(min, max, trk.getColorizeSource());
+    qreal min = trk.getMin(trk.getColorizeSource());
     spinLimitLow->setValue(min);
     slotColorLimitLowChanged();
     slotColorLimitHighChanged();
@@ -236,12 +217,80 @@ void CDetailsTrk::slotLimitLowFromData()
 
 void CDetailsTrk::slotLimitHighFromData()
 {
-    qreal min, max;
-    trk.getExtrema(min, max, trk.getColorizeSource());
+    qreal max = trk.getMax(trk.getColorizeSource());
     spinLimitHigh->setValue(max);
     slotColorLimitHighChanged();
     slotColorLimitLowChanged();
 }
+
+void CDetailsTrk::setupGraphLimits(CLimit& limit, QToolButton * toolLimitAutoGraph, QToolButton * toolLimitUsrGraph, QToolButton * toolLimitSysGraph, QDoubleSpinBox * spinMinGraph, QDoubleSpinBox * spinMaxGraph)
+{
+    bool isAutoMode = (limit.getMode() == CLimit::eModeAuto);
+
+    spinMinGraph->setDisabled(isAutoMode);
+    spinMinGraph->setSuffix(limit.getUnit());
+    spinMinGraph->setValue(limit.getMin());
+
+    spinMaxGraph->setDisabled(isAutoMode);
+    spinMaxGraph->setSuffix(limit.getUnit());
+    spinMaxGraph->setValue(limit.getMax());
+
+    switch(limit.getMode())
+    {
+    case CLimit::eModeUser:
+        toolLimitUsrGraph->setChecked(true);
+        break;
+    case CLimit::eModeAuto:
+        toolLimitAutoGraph->setChecked(true);
+        break;
+    case CLimit::eModeSys:
+        toolLimitSysGraph->setChecked(true);
+        break;
+    }
+
+    connect(toolLimitAutoGraph, &QToolButton::toggled, spinMinGraph, &QDoubleSpinBox::setDisabled);
+    connect(toolLimitAutoGraph, &QToolButton::toggled, spinMaxGraph, &QDoubleSpinBox::setDisabled);
+    connect(toolLimitAutoGraph, &QToolButton::toggled, this, &CDetailsTrk::slotSetLimitModeAuto);
+    connect(toolLimitUsrGraph,  &QToolButton::toggled, this, &CDetailsTrk::slotSetLimitModeUser);
+    connect(toolLimitSysGraph,  &QToolButton::toggled, this, &CDetailsTrk::slotSetLimitModeSys);
+
+    connect(spinMinGraph, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), &limit, &CLimit::setMin);
+    connect(spinMaxGraph, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), &limit, &CLimit::setMax);
+
+    connect(&limit, &CLimit::sigChanged, this, &CDetailsTrk::slotLimitChanged);
+}
+
+void CDetailsTrk::loadGraphSource(QComboBox * comboBox, qint32 n, const QString cfgDefault)
+{
+    const CPropertyTrk * p = trk.getPropertyHandler();
+
+    comboBox->blockSignals(true);
+    p->fillComboBox(comboBox);
+    comboBox->blockSignals(false);
+
+    // try to restore last graph setup
+    // signals are unblocked by now changing the combobox will trigger a graph update
+    SETTINGS;
+    cfg.beginGroup("TrackDetails");
+    int i = comboBox->findData(cfg.value(QString("propGraph%1").arg(n),cfgDefault).toString());
+    if(i != NOIDX)
+    {
+        comboBox->setCurrentIndex(i);
+    }
+    cfg.endGroup();
+}
+
+void CDetailsTrk::saveGraphSource(QComboBox * comboBox, qint32 n)
+{
+    SETTINGS;
+    cfg.beginGroup("TrackDetails");
+    if(comboBox->currentIndex() != 0)
+    {
+        cfg.setValue(QString("propGraph%1").arg(n), comboBox->currentData().toString());
+    }
+    cfg.endGroup();
+}
+
 
 void CDetailsTrk::updateData()
 {
@@ -387,12 +436,18 @@ void CDetailsTrk::updateData()
     }
 
     spinLineWidth->blockSignals(true);
-    spinLineWidth->setValue(trk.getScaleLineWidth());
+    spinLineWidth->setValue(trk.lineScale.val().toDouble());
     spinLineWidth->blockSignals(false);
+    toolUserLineWith->blockSignals(true);
+    toolUserLineWith->setChecked(trk.lineScale.getMode() == CValue::eModeUser);
+    toolUserLineWith->blockSignals(false);
 
     checkWithArrows->blockSignals(true);
-    checkWithArrows->setChecked(trk.getShowArrows());
+    checkWithArrows->setChecked(trk.showArrows.val().toBool());
     checkWithArrows->blockSignals(false);
+    toolUserArrow->blockSignals(true);
+    toolUserArrow->setChecked(trk.showArrows.getMode() == CValue::eModeUser);
+    toolUserArrow->blockSignals(false);
 
     comboColorSource->blockSignals(true);
     comboColorSource->clear();
@@ -417,8 +472,8 @@ void CDetailsTrk::updateData()
     spinLimitLow->setEnabled    (enabled);
     spinLimitHigh->setEnabled   (enabled);
     widgetColorLabel->setEnabled(enabled);
-    btnMinFromData->setEnabled  (enabled);
-    btnMaxFromData->setEnabled  (enabled);
+    toolStyleLimitMin->setEnabled(enabled);
+    toolStyleLimitMax->setEnabled(enabled);
 
     if(enabled)
     {
@@ -445,33 +500,12 @@ void CDetailsTrk::updateData()
 
 
     // refill comboboxes to select track property to be displayed by graphs
-    const CPropertyTrk * p = trk.getPropertyHandler();
-
     comboGraph2->blockSignals(true);
-    p->fillComboBox(comboGraph2);
-    comboGraph2->blockSignals(false);
-
     comboGraph3->blockSignals(true);
-    p->fillComboBox(comboGraph3);
+    loadGraphSource(comboGraph2, 2, CKnownExtension::internalSpeed);
+    loadGraphSource(comboGraph3, 3, CKnownExtension::internalProgress);
+    comboGraph2->blockSignals(false);
     comboGraph3->blockSignals(false);
-
-    // try to restore last graph setup
-    // signals are unblocked by now changing the combobox will trigger a graph update
-    SETTINGS;
-    cfg.beginGroup("TrackDetails");
-    int i = comboGraph2->findData(cfg.value("propGraph2","speed").toString());
-    if(i != NOIDX)
-    {
-        comboGraph2->setCurrentIndex(i);
-    }
-
-    i = comboGraph3->findData(cfg.value("propGraph3","progress").toString());
-    if(i != NOIDX)
-    {
-        comboGraph3->setCurrentIndex(i);
-    }
-    cfg.endGroup();
-
 
     originator = false;
     CCanvas::restoreOverrideCursor("CDetailsTrk::updateData");
@@ -673,40 +707,146 @@ void CDetailsTrk::slotActivitySelected(bool checked)
     }
 }
 
+void CDetailsTrk::setupGraph(CPlot * plot, const CLimit& limit, const QString& source, QDoubleSpinBox * spinMin, QDoubleSpinBox * spinMax)
+{
+    trk.getPropertyHandler()->setupPlot(plot, source);
+    spinMin->setSuffix(limit.getUnit());
+    spinMax->setSuffix(limit.getUnit());
+    spinMin->setValue(limit.getMin());
+    spinMax->setValue(limit.getMax());
+}
+
 void CDetailsTrk::slotSetupGraph(int idx)
 {
-    CPlot   *plot = nullptr;
-    QObject *s    = sender();
-
+    QObject *s = sender();
     if(s == comboGraph2)
     {
-        plot = plot2;
+        saveGraphSource(comboGraph2, 2);
+        setupGraph(plot2, trk.limitsGraph2, comboGraph2->itemData(idx).toString(), spinMinGraph2, spinMaxGraph2);
     }
     else if(s == comboGraph3)
     {
-        plot = plot3;
+        saveGraphSource(comboGraph3, 3);
+        setupGraph(plot3, trk.limitsGraph3, comboGraph3->itemData(idx).toString(), spinMinGraph3, spinMaxGraph3);
+    }
+}
+
+void CDetailsTrk::setupMode(CLimit::mode_e mode, CLimit& limit, QDoubleSpinBox * spinMin, QDoubleSpinBox * spinMax)
+{
+    limit.setMode(mode);
+    spinMin->setValue(limit.getMin());
+    spinMax->setValue(limit.getMax());
+}
+
+void CDetailsTrk::slotSetLimitModeUser(bool on)
+{
+    if(!on)
+    {
+        return;
     }
 
-    if(plot)
+    QObject *s = sender();
+    if(s == toolLimitUsrGraph1)
     {
-        trk.getPropertyHandler()->setupPlot(plot, idx);
+        setupMode(CLimit::eModeUser, trk.limitsGraph1, spinMinGraph1, spinMaxGraph1);
     }
+    else if(s == toolLimitUsrGraph2)
+    {
+        setupMode(CLimit::eModeUser, trk.limitsGraph2, spinMinGraph2, spinMaxGraph2);
+    }
+    else if(s == toolLimitUsrGraph3)
+    {
+        setupMode(CLimit::eModeUser, trk.limitsGraph3, spinMinGraph3, spinMaxGraph3);
+    }
+}
+
+void CDetailsTrk::slotSetLimitModeAuto(bool on)
+{
+    if(!on)
+    {
+        return;
+    }
+
+    QObject *s = sender();
+    if(s == toolLimitAutoGraph1)
+    {
+        setupMode(CLimit::eModeAuto, trk.limitsGraph1, spinMinGraph1, spinMaxGraph1);
+    }
+    else if(s == toolLimitAutoGraph2)
+    {
+        setupMode(CLimit::eModeAuto, trk.limitsGraph2, spinMinGraph2, spinMaxGraph2);
+    }
+    else if(s == toolLimitAutoGraph3)
+    {
+        setupMode(CLimit::eModeAuto, trk.limitsGraph3, spinMinGraph3, spinMaxGraph3);
+    }
+}
+
+void CDetailsTrk::slotSetLimitModeSys(bool on)
+{
+    if(!on)
+    {
+        return;
+    }
+
+    QObject *s = sender();
+    if(s == toolLimitSysGraph1)
+    {
+        setupMode(CLimit::eModeSys, trk.limitsGraph1, spinMinGraph1, spinMaxGraph1);
+    }
+    else if(s == toolLimitSysGraph2)
+    {
+        setupMode(CLimit::eModeSys, trk.limitsGraph2, spinMinGraph2, spinMaxGraph2);
+    }
+    else if(s == toolLimitSysGraph3)
+    {
+        setupMode(CLimit::eModeSys, trk.limitsGraph3, spinMinGraph3, spinMaxGraph3);
+    }
+}
+
+void CDetailsTrk::setupLimits(CLimit& limit, QDoubleSpinBox * spinMin, QDoubleSpinBox * spinMax)
+{
+    spinMin->setValue(limit.getMin());
+    spinMax->setValue(limit.getMax());
+}
+
+void CDetailsTrk::slotLimitChanged()
+{
+    QObject *s = sender();
+    if(s == &trk.limitsGraph1)
+    {
+        setupLimits(trk.limitsGraph1, spinMinGraph1, spinMaxGraph1);
+    }
+    else if(s == &trk.limitsGraph2)
+    {
+        setupLimits(trk.limitsGraph2, spinMinGraph2, spinMaxGraph2);
+    }
+    else if(s == &trk.limitsGraph3)
+    {
+        setupLimits(trk.limitsGraph3, spinMinGraph3, spinMaxGraph3);
+    }
+
+}
+
+void CDetailsTrk::slotLineWidthMode(bool isUser)
+{
+    trk.lineScale.setMode(isUser ? CValue::eModeUser : CValue::eModeSys);
+    spinLineWidth->setValue(trk.lineScale.val().toDouble());
 }
 
 void CDetailsTrk::slotLineWidth(qreal f)
 {
-    trk.setScaleLineWidth(f);
-    updateData();
+    trk.lineScale = f;
+}
+
+void CDetailsTrk::slotWithArrowsMode(bool isUser)
+{
+    trk.showArrows.setMode(isUser ? CValue::eModeUser : CValue::eModeSys);
+    checkWithArrows->setChecked(trk.showArrows.val().toBool());
 }
 
 void CDetailsTrk::slotWithArrows(bool yes)
 {
-    trk.setShowArrows(yes);
-    updateData();
+    trk.showArrows = yes;
 }
 
-
-void CDetailsTrk::slotSaveLineDefault()
-{
-    CGisItemTrk::saveDefaultLineStyle(spinLineWidth->value(), checkWithArrows->isChecked());
-}

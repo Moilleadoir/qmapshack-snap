@@ -59,13 +59,24 @@ private slots:
     void slotLimitHighFromData();
 
     void slotSetupGraph(int idx);
+    void slotSetLimitModeUser(bool on);
+    void slotSetLimitModeAuto(bool on);
+    void slotSetLimitModeSys(bool on);
+    void slotLimitChanged();
 
+    void slotLineWidthMode(bool isUser);
     void slotLineWidth(qreal f);
+    void slotWithArrowsMode(bool isUser);
     void slotWithArrows(bool yes);
 
-    void slotSaveLineDefault();
-
 private:
+    void loadGraphSource(QComboBox * comboBox, qint32 n, const QString cfgDefault);
+    void saveGraphSource(QComboBox * comboBox, qint32 n);
+    void setupGraphLimits(CLimit& limit, QToolButton * toolLimitAutoGraph, QToolButton * toolLimitUsrGraph, QToolButton * toolLimitSysGraph, QDoubleSpinBox * spinMinGraph, QDoubleSpinBox * spinMaxGraph);
+    void setupGraph(CPlot * plot, const CLimit &limit, const QString& source, QDoubleSpinBox * spinMin, QDoubleSpinBox * spinMax);
+    void setupMode(CLimit::mode_e mode, CLimit &limit, QDoubleSpinBox *spinMin, QDoubleSpinBox *spinMax);
+    void setupLimits(CLimit& limit, QDoubleSpinBox * spinMin, QDoubleSpinBox * spinMax);
+
     enum columns_t
     {
         eColNum

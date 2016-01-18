@@ -54,8 +54,6 @@ endif(APPLE)
 
 
 set( SRCS
-
-#    main.cpp
         GeoMath.cpp
         CMainWindow.cpp
         CAbout.cpp
@@ -79,6 +77,8 @@ set( SRCS
         helpers/CCommandProcessor.cpp
         helpers/CAppSetup.cpp
         helpers/CDraw.cpp
+        helpers/CValue.cpp
+        helpers/CLimit.cpp
         canvas/CCanvas.cpp
         canvas/CCanvasSetup.cpp
         canvas/IDrawContext.cpp
@@ -326,6 +326,8 @@ set( HDRS
         helpers/CCommandProcessor.h
         helpers/CAppSetup.h
         helpers/CDraw.h
+        helpers/CValue.h
+        helpers/CLimit.h
         canvas/CCanvas.h
         canvas/CCanvasSetup.h
         canvas/IDrawContext.h
@@ -643,13 +645,21 @@ translate_ts(${APPLICATION_NAME}_QM_FILES
     TRANSLATION_DIR "locale"
 )
 
+if (UNIX AND NOT WIN32 AND NOT APPLE)
+    translate_desktop(${APPLICATION_NAME}_DESKTOP_FILES
+        TRANSLATION_DIR "locale"
+        SOURCES "${PROJECT_SOURCE_DIR}/qmapshack.desktop.in"
+    )
+endif()
 
 set(LIBINP
         ${SRCS}
         ${HDRS}
         ${UI_HDRS}
         ${RC_SRCS}
-        ${${APPLICATION_NAME}_QM_FILES})
+        ${${APPLICATION_NAME}_QM_FILES}
+        ${${APPLICATION_NAME}_DESKTOP_FILES}
+)
 
 set(MAININP
     main.cpp
@@ -764,4 +774,11 @@ install(
         ${${APPLICATION_NAME}_QM_FILES}
     DESTINATION
         ${DATA_INSTALL_PREFIX}/${APPLICATION_NAME}/translations)
+
+install(
+    FILES
+        ${${APPLICATION_NAME}_DESKTOP_FILES}
+    DESTINATION
+        ${XDG_APPS_DIR}
+)
 endif (UNIX AND NOT WIN32 AND NOT APPLE)

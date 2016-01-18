@@ -135,7 +135,7 @@ CGisListDB::CGisListDB(QWidget *parent)
     connect(this, &CGisListDB::itemExpanded,               this, &CGisListDB::slotItemExpanded);
     connect(this, &CGisListDB::itemChanged,                this, &CGisListDB::slotItemChanged);
 
-    bool enabled = cfg.value("Database/listenUpdate", true).toBool();
+    bool enabled = cfg.value("Database/listenUpdate", false).toBool();
     if(enabled)
     {
         quint16 port = cfg.value("Database/port", UDP_PORT).toUInt();
@@ -189,6 +189,7 @@ void CGisListDB::saveDatabaseConfiguration()
             cfg.setValue("server", mysql->getServer());
             cfg.setValue("user", mysql->getUser());
             cfg.setValue("passwd", mysql->getPasswd());
+            cfg.setValue("noPasswd",mysql->hasNoPasswd());
             cfg.endGroup(); // name
         }
     }
