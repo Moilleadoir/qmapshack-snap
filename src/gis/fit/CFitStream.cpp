@@ -17,14 +17,12 @@
 **********************************************************************************************/
 
 #include "gis/fit/CFitStream.h"
+#include "gis/fit/defs/fit_const.h"
 
-#include <QtCore>
-
-bool CFitStream::decodeFile()
+void CFitStream::decodeFile()
 {
-    return decode.decode(file);
+    decode.decode(file);
 }
-
 
 void CFitStream::reset()
 {
@@ -54,16 +52,6 @@ bool CFitStream::hasMoreMesg()
     return readPos < decode.getMessages().size();
 }
 
-static const CFitMessage* dummyMessage = nullptr;
-const CFitMessage& invalidMessage()
-{
-    if(!dummyMessage)
-    {
-        dummyMessage = new CFitMessage();
-    }
-    return *dummyMessage;
-}
-
 const CFitMessage& CFitStream::nextMesgOf(quint16 mesgNum)
 {
     while(hasMoreMesg())
@@ -74,7 +62,9 @@ const CFitMessage& CFitStream::nextMesgOf(quint16 mesgNum)
             return mesg;
         }
     }
-    return invalidMessage();
+
+    static CFitMessage dummyMessage {};
+    return dummyMessage;
 }
 
 

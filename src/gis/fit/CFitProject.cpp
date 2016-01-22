@@ -23,31 +23,45 @@
 #include "gis/fit/defs/fit_enums.h"
 #include "gis/fit/defs/fit_fields.h"
 #include "gis/gpx/CGpxProject.h"
-#include "gis/qms/CQmsProject.h"
 #include "gis/rte/CGisItemRte.h"
 #include "gis/trk/CGisItemTrk.h"
 #include "gis/wpt/CGisItemWpt.h"
-#include "helpers/CSettings.h"
 
 #include <QtWidgets>
-
 
 CFitProject::CFitProject(const QString &filename, CGisListWks *parent)
     : IGisProject(eTypeFit, filename, parent)
 {
     setIcon(CGisListWks::eColumnIcon,QIcon("://icons/32x32/FitProject.png"));
     blockUpdateItems(true);
-    loadFit(filename);
+    try
+    {
+        loadFit(filename);
+    }
+    catch(QString &errormsg)
+    {
+        QMessageBox::critical(CMainWindow::getBestWidgetForParent(),
+                              QObject::tr("Failed to load file %1...").arg(filename), errormsg, QMessageBox::Abort);
+        valid = false;
+    }
     blockUpdateItems(false);
 }
-
 
 CFitProject::CFitProject(const QString &filename, IDevice *parent)
     : IGisProject(eTypeFit, filename, parent)
 {
     setIcon(CGisListWks::eColumnIcon,QIcon("://icons/32x32/FitProject.png"));
     blockUpdateItems(true);
-    loadFit(filename);
+    try
+    {
+        loadFit(filename);
+    }
+    catch(QString &errormsg)
+    {
+        QMessageBox::critical(CMainWindow::getBestWidgetForParent(),
+                              QObject::tr("Failed to load file %1...").arg(filename), errormsg, QMessageBox::Abort);
+        valid = false;
+    }
     blockUpdateItems(false);
 }
 
@@ -55,7 +69,7 @@ void CFitProject::loadFit(const QString & filename)
 {
     // create file instance
     QFile file(filename);
-    qDebug() << "FIT file " << filename;
+    qDebug() << "reading FIT file" << filename;
 
     // if the file does not exist, the filename is assumed to be a name for a new project
     if(!file.exists())
@@ -69,35 +83,35 @@ void CFitProject::loadFit(const QString & filename)
 
     if(!file.open(QIODevice::ReadOnly))
     {
-        QMessageBox::critical(&CMainWindow::self(), QObject::tr("Failed to open..."), QObject::tr("Failed to open %1").arg(filename), QMessageBox::Abort);
-        return;
+        throw QObject::tr("Failed to open FIT file %1.").arg(filename);
     }
 
     CFitStream in(file);
-    if(in.decodeFile())
+    try
     {
-        const CFitMessage& mesg = in.firstMesgOf(eMesgNumFileId);
-        if(mesg.getFieldUIntValue(eFileIdType) == eFileActivity || mesg.getFieldUIntValue(eFileIdType) == eFileCourse)
-        {
-            new CGisItemTrk(in, this);
-        }
-        // fit does not have routes
-        // new CGisItemRte(in, this);
-
-        in.reset();
-        while(in.nextMesgOf(eMesgNumCoursePoint).isValid())
-        {
-            new CGisItemWpt(in, this);
-        }
-        // ql:area is not directly available in FIT (could be calculated)
+        in.decodeFile();
     }
-    else
+    catch(QString& errormsg)
     {
-        qWarning() << "FIT decoding error for "<< filename;
-        QMessageBox::critical(&CMainWindow::self(), QObject::tr("Failed to open..."), QObject::tr("Failed to open %1").arg(filename), QMessageBox::Abort);
+        file.close();
+        throw errormsg;
     }
-
     file.close();
+
+    const CFitMessage& mesg = in.firstMesgOf(eMesgNumFileId);
+    if(mesg.getFieldValue(eFileIdType).toUInt() == eFileActivity || mesg.getFieldValue(eFileIdType).toUInt() == eFileCourse)
+    {
+        new CGisItemTrk(in, this);
+    }
+    // fit does not have routes
+    // new CGisItemRte(in, this);
+
+    in.reset();
+    while(in.nextMesgOf(eMesgNumCoursePoint).isValid())
+    {
+        new CGisItemWpt(in, this);
+    }
+    // ql:area is not directly available in FIT (could be calculated)
 
     markAsSaved();
 

@@ -33,6 +33,7 @@
 #include "gis/trk/filter/CFilterSplitSegment.h"
 #include "helpers/CLinksDialog.h"
 #include "helpers/CSettings.h"
+#include "helpers/Signals.h"
 #include "plot/CPlot.h"
 #include "plot/CPlotProfile.h"
 #include "units/IUnit.h"
@@ -111,9 +112,9 @@ CDetailsTrk::CDetailsTrk(CGisItemTrk& trk, QWidget *parent)
 
         connect(check, &QCheckBox::clicked, this, &CDetailsTrk::slotActivitySelected);
 
-        layoutActivities->addWidget(check);
+        layoutActivities->addWidget(check, i%8, i>>3);
     }
-    layoutActivities->addItem(new QSpacerItem(0,0,QSizePolicy::Maximum, QSizePolicy::MinimumExpanding));
+    layoutActivities->addItem(new QSpacerItem(0,0,QSizePolicy::Maximum, QSizePolicy::MinimumExpanding),8,0);
 
     updateData();
 
@@ -242,9 +243,11 @@ void CDetailsTrk::setupGraphLimits(CLimit& limit, QToolButton * toolLimitAutoGra
     case CLimit::eModeUser:
         toolLimitUsrGraph->setChecked(true);
         break;
+
     case CLimit::eModeAuto:
         toolLimitAutoGraph->setChecked(true);
         break;
+
     case CLimit::eModeSys:
         toolLimitSysGraph->setChecked(true);
         break;
@@ -454,21 +457,14 @@ void CDetailsTrk::updateData()
         }
     }
 
-    spinLineWidth->blockSignals(true);
+    X______________BlockAllSignals______________X(this);
+
     spinLineWidth->setValue(trk.lineScale.val().toDouble());
-    spinLineWidth->blockSignals(false);
-    toolUserLineWith->blockSignals(true);
     toolUserLineWith->setChecked(trk.lineScale.getMode() == CValue::eModeUser);
-    toolUserLineWith->blockSignals(false);
 
-    checkWithArrows->blockSignals(true);
     checkWithArrows->setChecked(trk.showArrows.val().toBool());
-    checkWithArrows->blockSignals(false);
-    toolUserArrow->blockSignals(true);
     toolUserArrow->setChecked(trk.showArrows.getMode() == CValue::eModeUser);
-    toolUserArrow->blockSignals(false);
 
-    comboColorSource->blockSignals(true);
     comboColorSource->clear();
     // the first entry `solid color`, it is always available
     comboColorSource->addItem(QIcon("://icons/32x32/CSrcSolid.png"), tr("Solid color"));
@@ -484,7 +480,6 @@ void CDetailsTrk::updateData()
         currentIdx = 0;
     }
     comboColorSource->setCurrentIndex(currentIdx);
-    comboColorSource->blockSignals(false);
 
     bool enabled = (0 < currentIdx);
 
@@ -498,19 +493,15 @@ void CDetailsTrk::updateData()
     {
         const CKnownExtension &ext = CKnownExtension::get(comboColorSource->itemData(currentIdx).toString());
 
-        spinLimitLow->blockSignals(true);
         spinLimitLow->setMinimum(ext.minimum);
         spinLimitLow->setMaximum(ext.maximum);
         spinLimitLow->setSuffix (ext.unit);
         spinLimitLow->setValue  (trk.getColorizeLimitLow());
-        spinLimitLow->blockSignals(false);
 
-        spinLimitHigh->blockSignals(true);
         spinLimitHigh->setMinimum(ext.minimum);
         spinLimitHigh->setMaximum(ext.maximum);
         spinLimitHigh->setSuffix (ext.unit);
         spinLimitHigh->setValue  (trk.getColorizeLimitHigh());
-        spinLimitHigh->blockSignals(false);
 
         widgetColorLabel->setMinimum(spinLimitLow->value());
         widgetColorLabel->setMaximum(spinLimitHigh->value());
@@ -519,12 +510,10 @@ void CDetailsTrk::updateData()
 
 
     // refill comboboxes to select track property to be displayed by graphs
-    comboGraph2->blockSignals(true);
-    comboGraph3->blockSignals(true);
     loadGraphSource(comboGraph2, 2, CKnownExtension::internalSpeed);
     loadGraphSource(comboGraph3, 3, CKnownExtension::internalProgress);
-    comboGraph2->blockSignals(false);
-    comboGraph3->blockSignals(false);
+
+    X_____________UnBlockAllSignals_____________X(this);
 
     originator = false;
     CCanvas::restoreOverrideCursor("CDetailsTrk::updateData");
@@ -649,6 +638,9 @@ void CDetailsTrk::slotColorLimitLowChanged()
 void CDetailsTrk::slotChangeReadOnlyMode(bool on)
 {
     trk.setReadOnlyMode(on);
+    // as setReadOnlyMode() is a method of IGisItem it will bypass updateHistory() of the track
+    // Therefore we have to call updateVisuals() explicitely.
+    trk.updateVisuals(CGisItemTrk::eVisualProject, "CDetailsTrk::slotChangeReadOnlyMode()");
     updateData();
 }
 
@@ -844,7 +836,6 @@ void CDetailsTrk::slotLimitChanged()
     {
         setupLimits(trk.limitsGraph3, spinMinGraph3, spinMaxGraph3);
     }
-
 }
 
 void CDetailsTrk::slotLineWidthMode(bool isUser)

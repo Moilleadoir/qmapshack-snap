@@ -20,13 +20,10 @@
 #define CFITSTREAM_H
 
 #include "gis/fit/decoder/CFitDecoder.h"
-#include "gis/fit/decoder/CFitDefinitionMessage.h"
-#include "gis/fit/decoder/CFitMessage.h"
-#include "gis/fit/defs/fit_const.h"
-
 
 #include <QtCore>
 
+class CFitMessage;
 
 /*
    Encapsulates the access to the FIT messages. Looping over the read FIT messages can be done using the
@@ -38,11 +35,10 @@ public:
     CFitStream(QFile& dev) : file(dev) { }
 
     /**
-       setup FIT file decoder.
-       return: true if the FIT file can be decoded.
-       throws: fit::RuntimeException
+       decodes fit file provided in constructor
+       throws: QString in case of a decoding failure
      */
-    bool decodeFile();
+    void decodeFile();
 
     /**
        sets the stream at the beginning (first position).

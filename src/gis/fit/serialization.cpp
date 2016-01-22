@@ -17,14 +17,12 @@
 **********************************************************************************************/
 
 #include "CMainWindow.h"
-#include "gis/WptIcons.h"
 #include "gis/fit/CFitProject.h"
 #include "gis/fit/defs/fit_enums.h"
 #include "gis/fit/defs/fit_fields.h"
 #include "gis/rte/CGisItemRte.h"
 #include "gis/trk/CGisItemTrk.h"
 #include "gis/wpt/CGisItemWpt.h"
-
 
 static const qreal degrees = 180.0;
 static const qreal twoPow31 = qPow(2, 31);
@@ -66,20 +64,20 @@ bool readFitRecord(const CFitMessage &mesg, IGisItem::wpt_t &pt)
 {
     if(mesg.isFieldValueValid(eRecordPositionLong) && mesg.isFieldValueValid(eRecordPositionLat))
     {
-        pt.lon = CFitDataConverter::toDegree(mesg.getFieldIntValue(eRecordPositionLong));
-        pt.lat = CFitDataConverter::toDegree(mesg.getFieldIntValue(eRecordPositionLat));
-        pt.ele = (int) mesg.getFieldDoubleValue(eRecordAltitude);
-        pt.time = CFitDataConverter::toDateTime(mesg.getFieldUIntValue(eRecordTimestamp));
-        //pt.speed = mesg.getFieldDoubleValue(RecordSpeed);
+        pt.lon = CFitDataConverter::toDegree(mesg.getFieldValue(eRecordPositionLong).toInt());
+        pt.lat = CFitDataConverter::toDegree(mesg.getFieldValue(eRecordPositionLat).toInt());
+        // QVariant.toInt() does not convert double to int but return 0.
+        pt.ele = (int) mesg.getFieldValue(eRecordEnhancedAltitude).toDouble();
+        pt.time = CFitDataConverter::toDateTime(mesg.getFieldValue(eRecordTimestamp).toUInt());
 
         // see gis/trk/CKnownExtension for the keys of the extensions
         if(mesg.isFieldValueValid(eRecordHeartRate))
         {
-            pt.extensions["gpxtpx:TrackPointExtension|gpxtpx:hr"] = QVariant(mesg.getFieldIntValue(eRecordHeartRate));
+            pt.extensions["gpxtpx:TrackPointExtension|gpxtpx:hr"] = mesg.getFieldValue(eRecordHeartRate);
         }
         if(mesg.isFieldValueValid(eRecordTemperature))
         {
-            pt.extensions["gpxtpx:TrackPointExtension|gpxtpx:atemp"] = QVariant(mesg.getFieldIntValue(eRecordTemperature));
+            pt.extensions["gpxtpx:TrackPointExtension|gpxtpx:atemp"] = mesg.getFieldValue(eRecordTemperature);
         }
 
         return true;
@@ -91,16 +89,16 @@ bool readFitRecord(const CFitMessage &mesg, CGisItemTrk::trkpt_t &pt)
 {
     if(readFitRecord(mesg, (IGisItem::wpt_t &)pt))
     {
-        pt.speed = mesg.getFieldDoubleValue(eRecordSpeed);
+        pt.speed = mesg.getFieldValue(eRecordSpeed).toDouble();
 
         // see gis/trk/CKnownExtension for the keys of the extensions
         if(mesg.isFieldValueValid(eRecordHeartRate))
         {
-            pt.extensions["gpxtpx:TrackPointExtension|gpxtpx:hr"] = QVariant(mesg.getFieldIntValue(eRecordHeartRate));
+            pt.extensions["gpxtpx:TrackPointExtension|gpxtpx:hr"] = mesg.getFieldValue(eRecordHeartRate);
         }
         if(mesg.isFieldValueValid(eRecordTemperature))
         {
-            pt.extensions["gpxtpx:TrackPointExtension|gpxtpx:atemp"] = QVariant(mesg.getFieldIntValue(eRecordTemperature));
+            pt.extensions["gpxtpx:TrackPointExtension|gpxtpx:atemp"] = mesg.getFieldValue(eRecordTemperature);
         }
 
         pt.extensions.squeeze();
@@ -113,17 +111,17 @@ void readFitCoursePoint(const CFitMessage &mesg, IGisItem::wpt_t &wpt)
 {
     if(mesg.isFieldValueValid(eCoursePointName))
     {
-        wpt.name = mesg.getFieldString(eCoursePointName);
+        wpt.name = mesg.getFieldValue(eCoursePointName).toString();
     }
     if(mesg.isFieldValueValid(eCoursePointTimestamp))
     {
-        wpt.time = CFitDataConverter::toDateTime(mesg.getFieldUIntValue(eCoursePointTimestamp));
+        wpt.time = CFitDataConverter::toDateTime(mesg.getFieldValue(eCoursePointTimestamp).toUInt());
     }
 
     if(mesg.isFieldValueValid(eCoursePointPositionLong) && mesg.isFieldValueValid(eCoursePointPositionLat))
     {
-        wpt.lon = CFitDataConverter::toDegree(mesg.getFieldIntValue(eCoursePointPositionLong));
-        wpt.lat = CFitDataConverter::toDegree(mesg.getFieldIntValue(eCoursePointPositionLat));
+        wpt.lon = CFitDataConverter::toDegree(mesg.getFieldValue(eCoursePointPositionLong).toInt());
+        wpt.lat = CFitDataConverter::toDegree(mesg.getFieldValue(eCoursePointPositionLat).toInt());
     }
     // TODO find appropriate icon for different CoursePointType (CoursePoint***)
     // see WptIcons.initWptIcons() for all values
@@ -135,7 +133,7 @@ void CGisItemTrk::readTrkFromFit(CFitStream &stream)
     const CFitMessage& mesg = stream.firstMesgOf(eMesgNumCourse);
     if(mesg.isValid() && mesg.isFieldValueValid(eCourseName))
     {
-        trk.name = mesg.getFieldString(eCourseName);
+        trk.name = mesg.getFieldValue(eCourseName).toString();
     }
     else
     {
@@ -163,24 +161,31 @@ void CGisItemTrk::readTrkFromFit(CFitStream &stream)
         }
         else if(mesg.getGlobalMesgNr() ==  eMesgNumEvent)
         {
-            if(mesg.getFieldUIntValue(eEventEvent) == eEventTimer)
+            if(mesg.getFieldValue(eEventEvent).toUInt() == eEventTimer)
             {
-                if(mesg.getFieldUIntValue(eEventEventType) == eEventTypeStop ||
-                   mesg.getFieldUIntValue(eEventEventType) == eEventTypeStopAll ||
-                   mesg.getFieldUIntValue(eEventEventType) == eEventTypeStopDisableAll)
+                if(mesg.getFieldValue(eEventEventType).toUInt() == eEventTypeStop ||
+                   mesg.getFieldValue(eEventEventType).toUInt() == eEventTypeStopAll ||
+                   mesg.getFieldValue(eEventEventType).toUInt() == eEventTypeStopDisableAll)
                 {
-                    trk.segs.append(seg);
-                    seg = trkseg_t();
+                    if(!seg.pts.isEmpty())
+                    {
+                        trk.segs.append(seg);
+                        seg = trkseg_t();
+                    }
                 }
             }
         }
     }
     while (stream.hasMoreMesg());
 
-    if(trk.segs.size() == 0)
+    if(trk.segs.size() == 0 && !seg.pts.isEmpty())
     {
-        // navigation course files do not have to have start / stop event, so add it now.
+        // navigation course files do not have to have start / stop event, so add the segment now.
         trk.segs.append(seg);
+    }
+    if(trk.segs.isEmpty())
+    {
+        throw QObject::tr("FIT file %1 contains no GPS data.").arg(stream.getFileName());
     }
 }
 
@@ -198,7 +203,7 @@ void CGisItemRte::readRteFromFit(CFitStream &stream)
     const CFitMessage& mesg = stream.firstMesgOf(eMesgNumCourse);
     if(mesg.isFieldValueValid(eCourseName))
     {
-        rte.name = mesg.getFieldString(eCourseName);
+        rte.name = mesg.getFieldValue(eCourseName).toString();
     }
     do
     {

@@ -229,6 +229,9 @@
                 <bold>true</bold>
                </font>
               </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
+              </property>
               <property name="frame">
                <bool>false</bool>
               </property>
@@ -335,7 +338,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="tab_3">
           <attribute name="title">
@@ -406,12 +409,6 @@
               <layout class="QGridLayout" name="gridLayout">
                <item row="5" column="1">
                 <widget class="CDoubleSpinBox" name="spinLimitLow">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
                  <property name="decimals">
                   <number>1</number>
                  </property>
@@ -439,8 +436,8 @@
                    </property>
                    <property name="iconSize">
                     <size>
-                     <width>20</width>
-                     <height>20</height>
+                     <width>16</width>
+                     <height>16</height>
                     </size>
                    </property>
                    <property name="checkable">
@@ -468,8 +465,8 @@
                    </property>
                    <property name="iconSize">
                     <size>
-                     <width>20</width>
-                     <height>20</height>
+                     <width>16</width>
+                     <height>16</height>
                     </size>
                    </property>
                    <property name="checkable">
@@ -502,14 +499,7 @@
                 </layout>
                </item>
                <item row="3" column="1">
-                <widget class="QComboBox" name="comboColorSource">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                </widget>
+                <widget class="QComboBox" name="comboColorSource"/>
                </item>
                <item row="5" column="0">
                 <widget class="QLabel" name="label_3">
@@ -550,8 +540,8 @@
                    </property>
                    <property name="iconSize">
                     <size>
-                     <width>20</width>
-                     <height>20</height>
+                     <width>16</width>
+                     <height>16</height>
                     </size>
                    </property>
                    <property name="checkable">
@@ -579,8 +569,8 @@
                    </property>
                    <property name="iconSize">
                     <size>
-                     <width>20</width>
-                     <height>20</height>
+                     <width>16</width>
+                     <height>16</height>
                     </size>
                    </property>
                    <property name="checkable">
@@ -621,12 +611,6 @@
                </item>
                <item row="4" column="1">
                 <widget class="CDoubleSpinBox" name="spinLimitHigh">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
                  <property name="decimals">
                   <number>1</number>
                  </property>
@@ -650,12 +634,6 @@
                </item>
                <item row="7" column="1">
                 <widget class="QDoubleSpinBox" name="spinLineWidth">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
                  <property name="prefix">
                   <string>x </string>
                  </property>
@@ -674,14 +652,7 @@
                 </widget>
                </item>
                <item row="0" column="1">
-                <widget class="QComboBox" name="comboColor">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                </widget>
+                <widget class="QComboBox" name="comboColor"/>
                </item>
                <item row="4" column="0">
                 <widget class="QLabel" name="label_2">
@@ -729,8 +700,8 @@
                    </property>
                    <property name="iconSize">
                     <size>
-                     <width>20</width>
-                     <height>20</height>
+                     <width>16</width>
+                     <height>16</height>
                     </size>
                    </property>
                   </widget>
@@ -769,8 +740,8 @@
                    </property>
                    <property name="iconSize">
                     <size>
-                     <width>20</width>
-                     <height>20</height>
+                     <width>16</width>
+                     <height>16</height>
                     </size>
                    </property>
                   </widget>
@@ -1047,8 +1018,8 @@
                </property>
                <property name="iconSize">
                 <size>
-                 <width>20</width>
-                 <height>20</height>
+                 <width>16</width>
+                 <height>16</height>
                 </size>
                </property>
                <property name="checkable">
@@ -1076,8 +1047,8 @@
                </property>
                <property name="iconSize">
                 <size>
-                 <width>20</width>
-                 <height>20</height>
+                 <width>16</width>
+                 <height>16</height>
                 </size>
                </property>
                <property name="checkable">
@@ -1108,8 +1079,8 @@
                </property>
                <property name="iconSize">
                 <size>
-                 <width>20</width>
-                 <height>20</height>
+                 <width>16</width>
+                 <height>16</height>
                 </size>
                </property>
                <property name="checkable">
@@ -1144,8 +1115,8 @@
                </property>
                <property name="iconSize">
                 <size>
-                 <width>20</width>
-                 <height>20</height>
+                 <width>16</width>
+                 <height>16</height>
                 </size>
                </property>
                <property name="checkable">
@@ -1173,8 +1144,8 @@
                </property>
                <property name="iconSize">
                 <size>
-                 <width>20</width>
-                 <height>20</height>
+                 <width>16</width>
+                 <height>16</height>
                 </size>
                </property>
                <property name="checkable">
@@ -1205,8 +1176,8 @@
                </property>
                <property name="iconSize">
                 <size>
-                 <width>20</width>
-                 <height>20</height>
+                 <width>16</width>
+                 <height>16</height>
                 </size>
                </property>
                <property name="checkable">
@@ -1241,8 +1212,8 @@
                </property>
                <property name="iconSize">
                 <size>
-                 <width>20</width>
-                 <height>20</height>
+                 <width>16</width>
+                 <height>16</height>
                 </size>
                </property>
                <property name="checkable">
@@ -1270,8 +1241,8 @@
                </property>
                <property name="iconSize">
                 <size>
-                 <width>20</width>
-                 <height>20</height>
+                 <width>16</width>
+                 <height>16</height>
                 </size>
                </property>
                <property name="checkable">
@@ -1302,8 +1273,8 @@
                </property>
                <property name="iconSize">
                 <size>
-                 <width>20</width>
-                 <height>20</height>
+                 <width>16</width>
+                 <height>16</height>
                 </size>
                </property>
                <property name="checkable">
@@ -1342,11 +1313,7 @@
             <number>3</number>
            </property>
            <item>
-            <layout class="QVBoxLayout" name="layoutActivities">
-             <property name="spacing">
-              <number>3</number>
-             </property>
-            </layout>
+            <layout class="QGridLayout" name="layoutActivities"/>
            </item>
            <item>
             <widget class="Line" name="line_3">
@@ -1601,10 +1568,10 @@
  </resources>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroupGraph3"/>
   <buttongroup name="buttonGroupArrow"/>
-  <buttongroup name="buttonGroupGraph2"/>
-  <buttongroup name="buttonGroupLineWidth"/>
   <buttongroup name="buttonGroupGraph1"/>
+  <buttongroup name="buttonGroupLineWidth"/>
+  <buttongroup name="buttonGroupGraph2"/>
+  <buttongroup name="buttonGroupGraph3"/>
  </buttongroups>
 </ui>

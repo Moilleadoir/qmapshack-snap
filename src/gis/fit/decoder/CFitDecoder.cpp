@@ -16,15 +16,14 @@
 
 **********************************************************************************************/
 
-#include "gis/fit/decoder/CFitDecoder.h"
-
 #include "gis/fit/decoder/CFitCrcState.h"
+#include "gis/fit/decoder/CFitDecoder.h"
 #include "gis/fit/decoder/CFitFieldDataState.h"
 #include "gis/fit/decoder/CFitFieldDefinitionState.h"
 #include "gis/fit/decoder/CFitHeaderState.h"
 #include "gis/fit/decoder/CFitRecordContentState.h"
 #include "gis/fit/decoder/CFitRecordHeaderState.h"
-
+#include "gis/fit/defs/fit_const.h"
 
 CFitDecoder::CFitDecoder()
 {
@@ -85,7 +84,7 @@ void CFitDecoder::printDebugInfo()
     FITDEBUG(1, printDefintions(data.defintionHistory))
     FITDEBUG(1, printMessages(data.messages))
 }
-bool CFitDecoder::decode(QFile &file)
+void CFitDecoder::decode(QFile &file)
 {
     resetSharedData();
 
@@ -101,20 +100,20 @@ bool CFitDecoder::decode(QFile &file)
             state = stateMap[state]->processByte(dataByte);
             if (state == eDecoderStateEnd)
             {
+                // end of file, everything ok
                 printDebugInfo();
-                return true;
+                return;
             }
         }
-        catch(QString exstr)
+        catch(QString& errormsg)
         {
             printDebugInfo();
-            qWarning() << exstr;
-            return false;
+            throw errormsg;
         }
     }
-    printDebugInfo();
     // unexpected end of file
-    return false;
+    printDebugInfo();
+    throw QObject::tr("FIT decoding error: unexpected end of file %1.").arg(file.fileName());
 }
 
 const QList<CFitMessage>& CFitDecoder::getMessages() const

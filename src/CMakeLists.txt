@@ -229,7 +229,7 @@ set( SRCS
         gis/fit/CFitStream.cpp
         gis/fit/serialization.cpp
         gis/fit/decoder/CFitMessage.cpp
-        gis/fit/decoder/IFitField.cpp
+        gis/fit/decoder/CFitField.cpp
         gis/fit/decoder/CFitDefinitionMessage.cpp
         gis/fit/decoder/CFitFieldDefinition.cpp
         gis/fit/defs/CFitProfile.cpp
@@ -329,6 +329,7 @@ set( HDRS
         helpers/CDraw.h
         helpers/CValue.h
         helpers/CLimit.h
+        helpers/Signals.h
         canvas/CCanvas.h
         canvas/CCanvasSetup.h
         canvas/IDrawContext.h
@@ -477,7 +478,7 @@ set( HDRS
         gis/fit/CFitStream.h
         gis/fit/defs/fit_const.h
         gis/fit/decoder/CFitMessage.h
-        gis/fit/decoder/IFitField.h
+        gis/fit/decoder/CFitField.h
         gis/fit/decoder/CFitDefinitionMessage.h
         gis/fit/decoder/CFitFieldDefinition.h
         gis/fit/defs/CFitProfile.h
@@ -630,6 +631,7 @@ qt5_add_resources(RC_SRCS ${RCS})
 
 # try to figure out which compiler flags are supported (and add them)
 cxx_add_flag_if_supported(-Wsuggest-override)
+cxx_add_flag_if_supported(-Woverloaded-virtual)
 
 if(UNIX)
     add_definitions(-Wall -Wpedantic -Wno-switch -Wno-strict-aliasing)

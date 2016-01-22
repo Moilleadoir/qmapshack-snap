@@ -16,41 +16,47 @@
 
 **********************************************************************************************/
 
-#ifndef CFITFIELDDEFINITION_H
-#define CFITFIELDDEFINITION_H
+#ifndef CFITFIELD_H
+#define CFITFIELD_H
 
 #include <QtCore>
 
-class CFitDefinitionMessage;
-class CFitBaseType;
+class CFitFieldDefinition;
 class CFitFieldProfile;
+class CFitBaseType;
 
-class CFitFieldDefinition final
+class CFitField final
 {
 public:
-    CFitFieldDefinition(CFitDefinitionMessage* parent, quint8 defNr, quint8 size, quint8 type);
-    CFitFieldDefinition();
+    CFitField(const CFitFieldDefinition& fieldDefinition, const CFitFieldProfile* profile, QVariant value, bool valid);
+    CFitField(quint16 globalMesgNr, quint8 fieldDefNr, const CFitFieldProfile* profile, QVariant value, bool valid);
+    CFitField(const CFitField & copy);
+    CFitField();
+    virtual ~CFitField() { /* nothing to do here, profile and base type are global and not to delete */ }
 
+    void setProfile(const CFitFieldProfile* profile);
     QString fieldInfo() const;
 
-    quint8 getDefNr() const;
-    quint8 getSize() const;
-    quint8 getType() const;
-    const CFitBaseType& getBaseType() const;
-    bool getEndianAbilityFlag() const;
-
-    const CFitDefinitionMessage& parent() const { return *parentDefintion; }
+    const CFitBaseType& getBaseType() const { return *baseType; }
+    quint16 getGlobalMesgNr() const { return globalMesgNr; }
+    quint8 getFieldDefNr() const { return fieldDefNr; }
     const CFitFieldProfile& profile() const { return *fieldProfile; }
 
-    void setParent(CFitDefinitionMessage* parent) { parentDefintion = parent; }
+    bool isValidValue() const { return valid; }
+    const QVariant& getValue() const {  return value; }
+
 
 private:
-    quint8 defNr;
-    quint8 size;
-    quint8 type;
-    CFitBaseType* baseType;
-    const CFitDefinitionMessage* parentDefintion;
+    void applyScaleAndOffset();
+
     const CFitFieldProfile* fieldProfile;
+    quint16 globalMesgNr;
+    quint8 fieldDefNr;
+    const CFitBaseType* baseType;
+    bool valid;
+    QVariant value;
+    QVariant rawValue;
 };
 
-#endif // CFITFIELDDEFINITION_H
+
+#endif // CFITFIELD_H
