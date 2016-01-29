@@ -16,11 +16,11 @@
 
 **********************************************************************************************/
 
+#include "helpers/Signals.h"
 #include "map/CMapDraw.h"
 #include "map/CMapPropSetup.h"
 #include "map/IMap.h"
 #include "units/IUnit.h"
-#include "helpers/Signals.h"
 
 #include <QtWidgets>
 QPointF CMapPropSetup::scale;
@@ -81,13 +81,13 @@ CMapPropSetup::~CMapPropSetup()
 {
 }
 
-/* virtual */ void CMapPropSetup::resizeEvent(QResizeEvent * e) /* override */
+void CMapPropSetup::resizeEvent(QResizeEvent * e) /* override */
 {
     IMapProp::resizeEvent(e);
     updateScaleLabel();
 }
 
-/* virtual */ void CMapPropSetup::slotPropertiesChanged() /* override */
+void CMapPropSetup::slotPropertiesChanged() /* override */
 {
     X______________BlockAllSignals______________X(this);
     // block all signals to avoid retrigger

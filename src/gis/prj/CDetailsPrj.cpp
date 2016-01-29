@@ -21,8 +21,8 @@
 #include "gis/prj/CDetailsPrj.h"
 #include "gis/prj/IGisProject.h"
 #include "gis/rte/CGisItemRte.h"
-#include "gis/trk/CGisItemTrk.h"
 #include "gis/trk/CActivityTrk.h"
+#include "gis/trk/CGisItemTrk.h"
 #include "gis/wpt/CGisItemWpt.h"
 #include "helpers/CLinksDialog.h"
 #include "helpers/CProgressDialog.h"
@@ -117,9 +117,12 @@ void CDetailsPrj::slotSetupGui()
         return;
     }
 
+    X______________BlockAllSignals______________X(this);
     comboSort->setCurrentIndex(prj.getSorting());
     if((prj.getSorting() > IGisProject::eSortTime) && !prj.doCorrelation())
     {
+        X_____________UnBlockAllSignals_____________X(this);
+
         QString msg = tr("You want to sort waypoints along a track, but you switched off track and waypoint correlation. Do you want to switch it on again?");
         int res = QMessageBox::question(this, tr("Correlation..."), msg, QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
         if(res == QMessageBox::Yes)
@@ -156,6 +159,7 @@ void CDetailsPrj::slotSetupGui()
             }
         }
     }
+    X_____________UnBlockAllSignals_____________X(this);
 
     textDesc->document()->setTextWidth(textDesc->size().width() - 20);
     draw(*textDesc->document(), false);
@@ -411,7 +415,7 @@ void CDetailsPrj::addIcon(QTextTable * table, int col, int row, IGisItem * item,
             icons << range.icon;
         }
 
-        foreach(const QString& icon, icons)
+        foreach(const QString &icon, icons)
         {
             if(!icon.isEmpty())
             {
