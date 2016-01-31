@@ -378,7 +378,7 @@ void IMouseEditLine::slotAbortEx(bool showMB)
     bool doAbort = ( idxHistory == 0 ) || !showMB;
     if(!doAbort)
     {
-        doAbort = (QMessageBox::Yes == QMessageBox::question(NULL, "Abort", "Do you really want to abort?\nAny modifications done will be discarded.", QMessageBox::Yes | QMessageBox::No));
+        doAbort = (QMessageBox::Yes == QMessageBox::question(nullptr, "Abort", "Do you really want to abort?\nAny modifications done will be discarded.", QMessageBox::Yes | QMessageBox::No));
     }
 
     if(doAbort)
@@ -393,7 +393,7 @@ void IMouseEditLine::slotCopyToOrig()
     QMutexLocker lock(&IGisItem::mutexItems);
 
     IGisLine * l = getGisLine();
-    if(l != 0)
+    if(l != nullptr)
     {
         CMainWindow::self().getElevationAt(points);
         l->setDataFromPolyline(points);

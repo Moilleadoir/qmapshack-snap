@@ -85,14 +85,14 @@ void CMouseEditArea::slotCopyToNew()
     }
 
     IGisProject * project = CGisWidget::self().selectProject();
-    if(project == 0)
+    if(nullptr == project)
     {
         return;
     }
 
     QString name;
     CGisItemOvlArea * area = dynamic_cast<CGisItemOvlArea*>(CGisWidget::self().getItemByKey(key));
-    if(area != 0)
+    if(area != nullptr)
     {
         name = area->getName();
     }

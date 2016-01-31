@@ -392,9 +392,16 @@ void CCanvas::paintEvent(QPaintEvent * e)
 
 void CCanvas::mousePressEvent(QMouseEvent * e)
 {
+    if(!mousePressMutex.tryLock())
+    {
+        return;
+    }
+
     mouse->mousePressEvent(e);
     QWidget::mousePressEvent(e);
     e->accept();
+
+    mousePressMutex.unlock();
 }
 
 void CCanvas::mouseMoveEvent(QMouseEvent * e)
@@ -498,7 +505,7 @@ void CCanvas::keyPressEvent(QKeyEvent * e)
     case Qt::Key_Escape:
     {
         IMouseEditLine *lineMouse = dynamic_cast<IMouseEditLine*>(mouse);
-        if(lineMouse != 0)
+        if(nullptr != lineMouse)
         {
             lineMouse->abortStep();
         }
@@ -636,7 +643,7 @@ void CCanvas::slotCheckTrackOnFocus()
 
         // get access to next track object
         CGisItemTrk * trk2 = dynamic_cast<CGisItemTrk*>(CGisWidget::self().getItemByKey(key));
-        if(trk2 == 0)
+        if(nullptr == trk2)
         {
             return;
         }
@@ -772,7 +779,7 @@ bool CCanvas::findPolylineCloseBy(const QPointF& pt1, const QPointF& pt2, qint32
 
 void CCanvas::saveSizeTrackProfile()
 {
-    if(plotTrackProfile == 0)
+    if(plotTrackProfile.isNull())
     {
         return;
     }
@@ -794,7 +801,7 @@ void CCanvas::saveSizeTrackProfile()
 
 void CCanvas::setSizeTrackProfile()
 {
-    if(plotTrackProfile == 0)
+    if(plotTrackProfile.isNull())
     {
         return;
     }

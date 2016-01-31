@@ -63,7 +63,7 @@ IGisProject::IGisProject(type_e type, const QString &filename, CGisListWks *pare
         for(int i = myIdx - 1; i >= 0; i--)
         {
             IDevice * device = dynamic_cast<IDevice*>(parent->topLevelItem(i));
-            if(device != 0)
+            if(device != nullptr)
             {
                 newIdx = i;
                 continue;
@@ -164,7 +164,7 @@ QPixmap IGisProject::getIcon() const
 bool IGisProject::isOnDevice() const
 {
     IDevice * device = dynamic_cast<IDevice*>(parent());
-    return device != 0;
+    return device != nullptr;
 }
 
 bool IGisProject::isChanged() const
@@ -361,7 +361,7 @@ void IGisProject::markAsSaved()
     for(int i = 0; i < childCount(); i++)
     {
         IGisItem * item = dynamic_cast<IGisItem*>(child(i));
-        if(item == 0)
+        if(nullptr == item)
         {
             continue;
         }
@@ -443,8 +443,8 @@ IGisItem * IGisProject::getItemByKey(const IGisItem::key_t& key)
 {
     for(int i = 0; i < childCount(); i++)
     {
-        IGisItem * item = dynamic_cast<IGisItem*>(child(i));
-        if(item == 0)
+        IGisItem *item = dynamic_cast<IGisItem*>(child(i));
+        if(nullptr == item)
         {
             continue;
         }
@@ -467,7 +467,7 @@ void IGisProject::getItemsByPos(const QPointF& pos, QList<IGisItem *> &items)
     for(int i = 0; i < childCount(); i++)
     {
         IGisItem * item = dynamic_cast<IGisItem*>(child(i));
-        if(item == 0)
+        if(nullptr == item)
         {
             continue;
         }
@@ -489,7 +489,7 @@ void IGisProject::mouseMove(const QPointF& pos)
     for(int i = 0; i < childCount(); i++)
     {
         IGisItem * item = dynamic_cast<IGisItem*>(child(i));
-        if(item == 0)
+        if(nullptr == item)
         {
             continue;
         }
@@ -504,7 +504,7 @@ bool IGisProject::delItemByKey(const IGisItem::key_t& key, QMessageBox::Standard
     for(int i = childCount(); i > 0; i--)
     {
         IGisItem * item = dynamic_cast<IGisItem*>(child(i-1));
-        if(item == 0)
+        if(nullptr == item)
         {
             continue;
         }
@@ -544,7 +544,7 @@ void IGisProject::editItemByKey(const IGisItem::key_t& key)
     for(int i = childCount(); i > 0; i--)
     {
         IGisItem * item = dynamic_cast<IGisItem*>(child(i-1));
-        if(item == 0)
+        if(nullptr == item)
         {
             continue;
         }
@@ -565,7 +565,7 @@ void IGisProject::insertCopyOfItem(IGisItem * item, int off, int& lastResult)
     key.device  = getDeviceKey();
 
     IGisItem * item2 = getItemByKey(key);
-    if(item2 != 0)
+    if(item2 != nullptr)
     {
         int result = lastResult;
         if(lastResult == CSelectCopyAction::eResultNone)
@@ -611,7 +611,7 @@ void IGisProject::insertCopyOfItem(IGisItem * item, int off, int& lastResult)
     case IGisItem::eTypeTrk:
     {
         CGisItemTrk * trk = dynamic_cast<CGisItemTrk*>(item);
-        if(trk != 0)
+        if(trk != nullptr)
         {
             CGisItemTrk * newTrk = new CGisItemTrk(*trk, this, off, clone);
             // if the track is on a device, remove hidden trackpoints
@@ -626,7 +626,7 @@ void IGisProject::insertCopyOfItem(IGisItem * item, int off, int& lastResult)
     case IGisItem::eTypeWpt:
     {
         CGisItemWpt * wpt = dynamic_cast<CGisItemWpt*>(item);
-        if(wpt != 0)
+        if(wpt != nullptr)
         {
             new CGisItemWpt(*wpt, this, off, clone);
         }
@@ -636,7 +636,7 @@ void IGisProject::insertCopyOfItem(IGisItem * item, int off, int& lastResult)
     case IGisItem::eTypeRte:
     {
         CGisItemRte * rte = dynamic_cast<CGisItemRte*>(item);
-        if(rte != 0)
+        if(rte != nullptr)
         {
             new CGisItemRte(*rte, this, off, clone);
         }
@@ -646,7 +646,7 @@ void IGisProject::insertCopyOfItem(IGisItem * item, int off, int& lastResult)
     case IGisItem::eTypeOvl:
     {
         CGisItemOvlArea * area = dynamic_cast<CGisItemOvlArea*>(item);
-        if(area != 0)
+        if(area != nullptr)
         {
             new CGisItemOvlArea(*area, this, off, clone);
         }
@@ -670,7 +670,7 @@ void IGisProject::drawItem(QPainter& p, const QPolygonF& viewport, QList<QRectF>
         }
 
         IGisItem * item = dynamic_cast<IGisItem*>(child(i));
-        if(item == 0)
+        if(nullptr == item)
         {
             continue;
         }
@@ -689,7 +689,7 @@ void IGisProject::drawItem(QPainter& p, const QRectF& viewport, CGisDraw * gis)
     for(int i = 0; i < childCount(); i++)
     {
         IGisItem * item = dynamic_cast<IGisItem*>(child(i));
-        if(item == 0)
+        if(nullptr == item)
         {
             continue;
         }
@@ -714,7 +714,7 @@ void IGisProject::drawLabel(QPainter& p, const QPolygonF& viewport, QList<QRectF
         }
 
         IGisItem * item = dynamic_cast<IGisItem*>(child(i));
-        if(item == 0)
+        if(nullptr == item)
         {
             continue;
         }
@@ -798,7 +798,7 @@ void IGisProject::updateItemCounters()
     for(int i = 0; i < childCount(); i++)
     {
         IGisItem * item = dynamic_cast<IGisItem*>(child(i));
-        if(item == 0)
+        if(nullptr == item)
         {
             continue;
         }
@@ -848,7 +848,7 @@ void IGisProject::updateDecoration()
     for(int i = 0; i < N; i++)
     {
         IGisItem * item = dynamic_cast<IGisItem*>(child(i));
-        if(item == 0)
+        if(nullptr == item)
         {
             continue;
         }
