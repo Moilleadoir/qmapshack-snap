@@ -558,7 +558,6 @@ QDataStream& CGisItemTrk::operator<<(QDataStream& stream)
 
     if(version > 1 && version <= 4)
     {
-
         QString colorSource;
         in >> colorSource;
 
@@ -570,8 +569,9 @@ QDataStream& CGisItemTrk::operator<<(QDataStream& stream)
         colorSourceLimit.mode       = CLimit::eModeAuto;
         colorSourceLimit.minUser    = limitLow;
         colorSourceLimit.maxUser    = limitHigh;
-
-    } else if(version > 4) {
+    }
+    else if(version > 4)
+    {
         in >> colorSourceLimit;
     }
 
@@ -919,7 +919,7 @@ QDataStream& IGisProject::operator<<(QDataStream& stream)
     return stream;
 }
 
-QDataStream& IGisProject::operator>>(QDataStream& stream)
+QDataStream& IGisProject::operator>>(QDataStream& stream) const
 {
     stream.writeRawData(MAGIC_PROJ, MAGIC_SIZE);
     stream << VER_PROJECT;
@@ -1038,7 +1038,7 @@ QDataStream& CDBProject::operator<<(QDataStream& stream)
     return stream;
 }
 
-QDataStream& CDBProject::operator>>(QDataStream& stream)
+QDataStream& CDBProject::operator>>(QDataStream& stream) const
 {
     stream.writeRawData(MAGIC_PROJ, MAGIC_SIZE);
     stream << VER_PROJECT;
