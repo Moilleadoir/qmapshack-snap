@@ -287,6 +287,14 @@ void IGisItem::updateDecoration(quint32 enable, quint32 disable)
         project->setChanged();
     }
 
+    // test for lost & found folder
+    if(project && project->getType() == IGisProject::eTypeLostFound)
+    {
+        setText(CGisListWks::eColumnDecoration, QString());
+        setToolTip(CGisListWks::eColumnDecoration, QString());
+        return;
+    }
+
     // set marks in column 1
     quint32 mask = data(1,Qt::UserRole).toUInt();
     mask |=  enable;
@@ -299,6 +307,7 @@ void IGisItem::updateDecoration(quint32 enable, quint32 disable)
     {
         tt  += tt.isEmpty() ? "" : "\n";
         tt  += tr("The item is not part of the project in the database.");
+        tt  += tr("\nIt is either a new item or it has been deleted in the database by someone else.");
         str += "?";
     }
     if(mask & eMarkNotInDB)

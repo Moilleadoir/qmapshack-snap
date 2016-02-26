@@ -31,6 +31,7 @@
 #include "gis/trk/CKnownExtension.h"
 #include "helpers/CProgressDialog.h"
 #include "helpers/CSettings.h"
+#include "helpers/CWptIconDialog.h"
 #include "map/CMapDraw.h"
 #include "map/CMapItem.h"
 #include "map/CMapList.h"
@@ -123,6 +124,7 @@ CMainWindow::CMainWindow()
     connect(actionClose,                 &QAction::triggered,            this,      &CMainWindow::close);
     connect(actionCreateRoutinoDatabase, &QAction::triggered,            this,      &CMainWindow::slotCreateRoutinoDatabase);
     connect(actionPrintMap,              &QAction::triggered,            this,      &CMainWindow::slotPrintMap);
+    connect(actionSetupWaypointIcons,    &QAction::triggered,            this,      &CMainWindow::slotSetupWptIcons);
     connect(tabWidget,                   &QTabWidget::tabCloseRequested, this,      &CMainWindow::slotTabCloseRequest);
 
     connect(tabWidget,                   &QTabWidget::currentChanged,    this,      &CMainWindow::slotCurrentTabCanvas);
@@ -893,6 +895,12 @@ void CMainWindow::slotPrintMap()
     {
         canvas->setMousePrint();
     }
+}
+
+void CMainWindow::slotSetupWptIcons()
+{
+    CWptIconDialog dlg(this);
+    dlg.exec();
 }
 
 #ifdef WIN32

@@ -76,6 +76,16 @@ public:
      */
     CCanvas* getVisibleCanvas() const;
 
+    QAction * getMapSetupAction()
+    {
+        return actionSetupMapPaths;
+    }
+
+    QAction * getDemSetupAction()
+    {
+        return actionSetupDEMPaths;
+    }
+
     const qint32 id;
 protected:
 #ifdef WIN32
@@ -114,6 +124,7 @@ private slots:
     void slotSetProfileMode(bool on);
     void slotCreateRoutinoDatabase();
     void slotPrintMap();
+    void slotSetupWptIcons();
 
 private:
     friend int main(int argc, char ** argv);
