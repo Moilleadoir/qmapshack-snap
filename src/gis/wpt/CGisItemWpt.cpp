@@ -180,7 +180,7 @@ CGisItemWpt::~CGisItemWpt()
 IGisItem * CGisItemWpt::createClone()
 {
     int idx = -1;
-    IGisProject * project = dynamic_cast<IGisProject*>(parent());
+    IGisProject * project = getParentProject();
     if(project)
     {
         idx = project->indexOfChild(this);
@@ -428,6 +428,12 @@ bool CGisItemWpt::isCloseTo(const QPointF& pos)
 
     return (pos - posScreen).manhattanLength() < 22;
 }
+
+bool CGisItemWpt::isWithin(const QRectF& area, selflags_t flags)
+{
+    return (flags & eSelectionWpt) ? area.contains(posScreen) : false;
+}
+
 
 void CGisItemWpt::gainUserFocus(bool yes)
 {

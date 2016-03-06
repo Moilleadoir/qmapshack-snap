@@ -135,7 +135,7 @@ CGisItemOvlArea::~CGisItemOvlArea()
 IGisItem * CGisItemOvlArea::createClone()
 {
     int idx = -1;
-    IGisProject * project = dynamic_cast<IGisProject*>(parent());
+    IGisProject * project = getParentProject();
     if(project)
     {
         idx = project->indexOfChild(this);
@@ -154,6 +154,11 @@ bool CGisItemOvlArea::isCloseTo(const QPointF& pos)
 
     qreal dist = GPS_Math_DistPointPolyline(polygonArea, pos);
     return dist < 20;
+}
+
+bool CGisItemOvlArea::isWithin(const QRectF& area, selflags_t flags)
+{
+    return (flags & eSelectionOvl) ? IGisItem::isWithin(area, flags, polygonArea) : false;
 }
 
 QPointF CGisItemOvlArea::getPointCloseBy(const QPoint& screenPos)

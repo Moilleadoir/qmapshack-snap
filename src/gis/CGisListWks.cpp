@@ -42,13 +42,12 @@
 #include "gis/ovl/CGisItemOvlArea.h"
 #include "gis/prj/IGisProject.h"
 #include "gis/qms/CQmsProject.h"
-#include "gis/rte/CCreateRouteFromWpt.h"
 #include "gis/rte/CGisItemRte.h"
 #include "gis/search/CSearchGoogle.h"
 #include "gis/slf/CSlfProject.h"
 #include "gis/trk/CGisItemTrk.h"
 #include "gis/wpt/CGisItemWpt.h"
-#include "helpers/CAppSetup.h"
+#include "setup/IAppSetup.h"
 #include "helpers/CProgressDialog.h"
 #include "helpers/CSelectCopyAction.h"
 #include "helpers/CSelectProjectDialog.h"
@@ -90,7 +89,7 @@ CGisListWks::CGisListWks(QWidget *parent)
     : QTreeWidget(parent)
 {
     db = QSqlDatabase::addDatabase("QSQLITE","Workspace1");
-    QString config = CAppSetup::getPlattformInstance()->configDir().filePath("workspace.db");
+    QString config = QDir(IAppSetup::getPlatformInstance()->userDataPath()).filePath("workspace.db");
     db.setDatabaseName(config);
     db.open();
     configDB();
@@ -1043,14 +1042,23 @@ void CGisListWks::slotContextMenu(const QPoint& point)
             switch(gisItem->type())
             {
             case IGisItem::eTypeTrk:
-                actionCombineTrk->setEnabled(true); // might be disabled by menuItem
+            {
+                IGisProject * project = gisItem->getParentProject();
+                if(project != nullptr)
+                {
+                    actionCombineTrk->setEnabled(project->getItemCountByType(IGisItem::eTypeTrk) > 1);
+                }
+                else
+                {
+                    actionCombineTrk->setEnabled(false);
+                }
                 actionRangeTrk->setDisabled(isOnDevice);
                 actionReverseTrk->setDisabled(isOnDevice);
                 actionEditTrk->setDisabled(isOnDevice);
                 actionFocusTrk->setChecked(gisItem->hasUserFocus());
                 menuItemTrk->exec(p);
                 break;
-
+            }
             case IGisItem::eTypeWpt:
                 actionBubbleWpt->setChecked(dynamic_cast<CGisItemWpt*>(gisItem)->hasBubble());
                 actionMoveWpt->setDisabled(isOnDevice);
@@ -1256,63 +1264,17 @@ void CGisListWks::slotDeleteItem()
     CGisListWksEditLock lock(false, IGisItem::mutexItems);
 
     QList<QTreeWidgetItem*> items       = selectedItems();
-    QMessageBox::StandardButtons last   = QMessageBox::NoButton;
-
-    QSet<CDBProject*>   projects;
-    QSet<IGisProject*>  projectsAll;
-
+    QList<IGisItem::key_t>  keys;
     foreach(QTreeWidgetItem * item, items)
     {
         IGisItem * gisItem = dynamic_cast<IGisItem*>(item);
-        if(nullptr != gisItem)
+        if(gisItem != nullptr)
         {
-            bool yes = false;
-            IGisProject *project = dynamic_cast<IGisProject*>(gisItem->parent());
-            if(nullptr != project)
-            {
-                project->blockUpdateItems(true);
-                yes = project->delItemByKey(gisItem->getKey(), last);
-
-
-                /*
-                    collect database projects to update their counterpart in
-                    the database view, after all operations are done.
-                 */
-                if(yes && project->getType() == IGisProject::eTypeDb)
-                {
-                    projects << dynamic_cast<CDBProject*>(project);
-                }
-
-                /*
-                    Collect all projects to unblock update later on.
-                 */
-                projectsAll << project;
-            }
-
-            if(last == QMessageBox::Cancel)
-            {
-                break;
-            }
+            keys << gisItem->getKey();
         }
     }
 
-    // make all database projects that are changed to post their new status
-    // this will update the database view.
-    foreach(CDBProject * project, projects)
-    {
-        project->postStatus(true);
-    }
-    // unblock update for all projects seen
-    foreach(IGisProject * project, projectsAll)
-    {
-        project->blockUpdateItems(false);
-    }
-
-    CCanvas * canvas = CMainWindow::self().getVisibleCanvas();
-    if(canvas)
-    {
-        canvas->slotTriggerCompleteUpdate(CCanvas::eRedrawGis);
-    }
+    CGisWidget::self().delItemsByKey(keys);
 }
 
 void CGisListWks::slotCopyItem()
@@ -1339,33 +1301,7 @@ void CGisListWks::slotCopyItem()
         }
     }
 
-    IGisProject * project = CGisWidget::self().selectProject();
-    if(nullptr == project)
-    {
-        return;
-    }
-
-    int lastResult = CSelectCopyAction::eResultNone;
-
-    project->blockUpdateItems(true);
-    int cnt = 1;
-    PROGRESS_SETUP(tr("Copy items..."), 0, items.count(), this);
-    foreach(const IGisItem::key_t& key, keys)
-    {
-        PROGRESS(cnt++, break);
-        IGisItem * gisItem = CGisWidget::self().getItemByKey(key);
-        if(nullptr != gisItem)
-        {
-            project->insertCopyOfItem(gisItem, NOIDX, lastResult);
-        }
-    }
-    project->blockUpdateItems(false);
-
-    CCanvas *canvas = CMainWindow::self().getVisibleCanvas();
-    if(nullptr != canvas)
-    {
-        canvas->slotTriggerCompleteUpdate(CCanvas::eRedrawGis);
-    }
+    CGisWidget::self().copyItemsByKey(keys);
 }
 
 void CGisListWks::slotProjWpt()
@@ -1450,8 +1386,15 @@ void CGisListWks::slotCombineTrk()
     }
 
     if(!keys.isEmpty())
-    {
-        CGisWidget::self().combineTrkByKey(keys);
+    {        
+        if(keys.size() == 1)
+        {
+            CGisWidget::self().combineTrkByKey(keys.first());
+        }
+        else
+        {
+            CGisWidget::self().combineTrkByKey(keys, keys);
+        }
     }
 }
 
@@ -1845,8 +1788,10 @@ void CGisListWks::slotRteFromWpt()
         }
     }
 
-    CCreateRouteFromWpt dlg(keys, this);
-    dlg.exec();
+    if(!keys.isEmpty())
+    {
+        CGisWidget::self().makeRteFromWpt(keys);
+    }
 }
 
 void CGisListWks::slotSyncDB()

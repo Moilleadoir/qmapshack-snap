@@ -152,7 +152,7 @@ CGisItemRte::~CGisItemRte()
 IGisItem * CGisItemRte::createClone()
 {
     int idx = -1;
-    IGisProject * project = dynamic_cast<IGisProject*>(parent());
+    IGisProject * project = getParentProject();
     if(project)
     {
         idx = project->indexOfChild(this);
@@ -347,6 +347,12 @@ bool CGisItemRte::isCloseTo(const QPointF& pos)
     qreal dist = GPS_Math_DistPointPolyline(line, pos);
     return dist < 20;
 }
+
+bool CGisItemRte::isWithin(const QRectF& area, selflags_t flags)
+{
+    return (flags & eSelectionRte) ? IGisItem::isWithin(area, flags, line) : false;
+}
+
 
 void CGisItemRte::gainUserFocus(bool yes)
 {

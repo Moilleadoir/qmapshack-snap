@@ -16,17 +16,32 @@
 
 **********************************************************************************************/
 
-#ifndef CCOMMANDPROCESSOR_H
-#define CCOMMANDPROCESSOR_H
+#ifndef IAPPSETUP_H
+#define IAPPSETUP_H
 
+#include <QApplication>
+#include <QtCore>
 #include "CAppOpts.h"
 
 
-class CCommandProcessor
+class IAppSetup
 {
 public:
-    CAppOpts* processOptions(const QStringList &arguments);
+    static IAppSetup *getPlatformInstance();
+    virtual void initQMapShack() = 0;
+    void initLogHandler();
+    void processArguments();
+
+    virtual QString routinoPath(QString xmlFile) = 0;
+    virtual QString defaultCachePath() = 0;
+    virtual QString userDataPath(QString subdir = 0) = 0;
+    virtual QString logDir() = 0;
+
+protected:
+    void prepareGdal(QString gdalDir, QString projDir);
+    void prepareTranslator(QString translationPath, QString translationPrefix);
+
+    QString path(QString path, QString subdir, bool mkdir, QString debugName);
 };
 
-
-#endif // CCOMMANDPROCESSOR_H
+#endif // IAPPSETUP_H

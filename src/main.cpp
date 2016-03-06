@@ -17,15 +17,12 @@
 **********************************************************************************************/
 
 #include "CMainWindow.h"
-#include "helpers/CAppSetup.h"
-#include "helpers/CCommandProcessor.h"
+#include "setup/IAppSetup.h"
 #include "version.h"
 
-#include <QtCore>
 #include <QtWidgets>
 #include <iostream>
 
-CAppOpts *qlOpts;
 
 int main(int argc, char ** argv)
 {
@@ -35,15 +32,10 @@ int main(int argc, char ** argv)
     QCoreApplication::setOrganizationName("QLandkarte");
     QCoreApplication::setOrganizationDomain("qlandkarte.org");
 
-    CAppSetup* env = CAppSetup::getPlattformInstance();
-    env->installMessageHandler();
-
-    CCommandProcessor cmdParse;
-    qlOpts = cmdParse.processOptions(app.arguments());
-
-    env->prepareConfig();
-    env->prepareTranslators(&app);
-    env->prepareGdal();
+    IAppSetup* env = IAppSetup::getPlatformInstance();
+    env->processArguments();
+    env->initLogHandler();
+    env->initQMapShack();
 
     QSplashScreen *splash = nullptr;
     if (!qlOpts->nosplash)

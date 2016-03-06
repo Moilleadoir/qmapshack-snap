@@ -140,6 +140,19 @@ public:
         ,eMarkNotInDB   = 0x00000004
     };
 
+    enum selection_e
+    {
+        eSelectionNone          = 0
+        , eSelectionExact       = 0x00000001
+        , eSelectionIntersect   = 0x00000002
+        , eSelectionTrk         = 0x80000000
+        , eSelectionWpt         = 0x40000000
+        , eSelectionRte         = 0x20000000
+        , eSelectionOvl         = 0x10000000
+    };
+
+    using selflags_t = quint32;
+
     struct key_t
     {
         bool operator==(const key_t& k) const
@@ -301,6 +314,8 @@ public:
      */
     virtual bool isCloseTo(const QPointF& pos) = 0;
 
+    virtual bool isWithin(const QRectF& area, selflags_t mode) = 0;
+
     /**
        @brief Receive the current mouse position
 
@@ -428,6 +443,8 @@ public:
     virtual IGisItem * createClone() = 0;
 
 
+    IGisProject * getParentProject() const;
+
     /**
        @brief Remove all HTML tags from a string
        @param str the string
@@ -509,11 +526,10 @@ protected:
     /// call when ever you make a change to the item's data
     virtual void changed(const QString& what, const QString& icon);
 
-
     void loadFromDb(quint64 id, QSqlDatabase& db);
-
     bool isVisible(const QRectF& rect, const QPolygonF& viewport, CGisDraw * gis);
     bool isVisible(const QPointF& point, const QPolygonF& viewport, CGisDraw * gis);
+    bool isWithin(const QRectF& area, selflags_t flags, const QPolygonF& points);
 
     /**
        @brief Converts a string with HTML tags to a string without HTML depending on the device

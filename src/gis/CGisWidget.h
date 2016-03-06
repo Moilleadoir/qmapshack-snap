@@ -249,18 +249,30 @@ public:
     void getItemsByPos(const QPointF& pos, QList<IGisItem *> &items);
 
     /**
+       @brief Get items matching the given area
+
+       @param area      a rectangle in screen pixel coordinates
+       @param flags     flag field with IGisItem::selection_e flags set
+       @param items     a list to receive the temporary pointers to the found items
+     */
+    void getItemsByArea(const QRectF& area, IGisItem::selflags_t flags, QList<IGisItem *> &items);
+
+    /**
        @brief Find first item with matching key
        @param key       the item's key as it is returned from IGisItem::getKey()
        @return If no item is found 0 is returned.
      */
     IGisItem * getItemByKey(const IGisItem::key_t &key);
 
+    void getItemsByKeys(const QList<IGisItem::key_t>& keys, QList<IGisItem*>& items);
     /**
        @brief Delete all items with matching key from workspace
 
        @param key       the item's key as it is returned from IGisItem::getKey()
      */
     void delItemByKey(const IGisItem::key_t &key);
+
+    void delItemsByKey(const QList<IGisItem::key_t> &keys);
 
     /**
        @brief Edit / view item details
@@ -273,6 +285,12 @@ public:
        @param key       the item's key as it is returned from IGisItem::getKey()
      */
     void copyItemByKey(const IGisItem::key_t &key);
+
+    /**
+       @brief Select a project and add a copy of all items in the list
+       @param keys      a list of item keys to copy
+     */
+    void copyItemsByKey(const QList<IGisItem::key_t> &keys);
 
     /**
        @brief Clone waypoint and move clone
@@ -304,9 +322,22 @@ public:
 
     void reverseTrkByKey(const IGisItem::key_t &key);
 
-    void combineTrkByKey(const IGisItem::key_t &key);
+    /**
+       @brief Combine all tracks in a given track's project
 
-    void combineTrkByKey(const QList<IGisItem::key_t>& keys);
+       This will collect all tracks in a project and pass them
+       to the track combine dialog.
+
+       @param keyTrk    the key of the first track
+     */
+    void combineTrkByKey(const IGisItem::key_t &keyTrk);
+
+    /**
+       @brief Combine al tracks in the given list of keys.
+
+       @param keys  a list of GIS item keys
+     */
+    void combineTrkByKey(const QList<IGisItem::key_t>& keys, const QList<IGisItem::key_t> &keysPreSel);
 
     void rangeTrkByKey(const IGisItem::key_t &key);
 
@@ -317,6 +348,8 @@ public:
     void resetRteByKey(const IGisItem::key_t& key);
 
     void editAreaByKey(const IGisItem::key_t &key);
+
+    void makeRteFromWpt(const QList<IGisItem::key_t>& keys);
 
     /**
        @brief Select a project via dialog

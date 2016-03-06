@@ -25,13 +25,15 @@
 #include "map/CMapList.h"
 #include "map/CMapPathSetup.h"
 #include "map/IMap.h"
+#include "setup/IAppSetup.h"
 
 #include <QtGui>
 #include <QtWidgets>
 
 
+
 QList<CMapDraw*> CMapDraw::maps;
-QString CMapDraw::cachePath = QDir::home().absoluteFilePath(".QMapShack/");
+QString CMapDraw::cachePath = "";
 QStringList CMapDraw::mapPaths;
 QStringList CMapDraw::supportedFormats = QString("*.vrt|*.jnx|*.img|*.rmap|*.wmts|*.tms|*.gemf").split('|');
 
@@ -70,6 +72,10 @@ void CMapDraw::setProjection(const QString& proj) /* override */
 void CMapDraw::setupMapPath()
 {
     QStringList paths = mapPaths;
+    if(cachePath.isEmpty())
+    {
+        cachePath =  IAppSetup::getPlatformInstance()->defaultCachePath();
+    }
     CMapPathSetup dlg(paths, cachePath);
     if(dlg.exec() != QDialog::Accepted)
     {

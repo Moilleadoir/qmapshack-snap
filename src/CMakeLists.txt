@@ -75,8 +75,6 @@ set( SRCS
         helpers/CLinksDialog.cpp
         helpers/CPhotoViewer.cpp
         helpers/CProgressDialog.cpp
-        helpers/CCommandProcessor.cpp
-        helpers/CAppSetup.cpp
         helpers/CDraw.cpp
         helpers/CValue.cpp
         helpers/CLimit.cpp
@@ -129,6 +127,7 @@ set( SRCS
         grid/CProjWizard.cpp
         grid/mitab.cpp
         mouse/IMouse.cpp
+        mouse/IMouseSelect.cpp
         mouse/IScrOpt.cpp
         mouse/CMouseDummy.cpp
         mouse/CMouseNormal.cpp
@@ -139,8 +138,11 @@ set( SRCS
         mouse/CMouseRangeTrk.cpp
         mouse/CMouseWptBubble.cpp
         mouse/CMousePrint.cpp
+        mouse/CMouseSelect.cpp
         mouse/CScrOptUnclutter.cpp
         mouse/CScrOptRangeTrk.cpp
+        mouse/CScrOptSelect.cpp
+        mouse/CScrOptPrint.cpp
         mouse/line/IMouseEditLine.cpp
         mouse/line/CScrOptEditLine.cpp
         mouse/line/CScrOptRangeLine.cpp
@@ -278,6 +280,12 @@ set( SRCS
         tool/CImportDatabase.cpp
         tool/CRoutinoDatabaseBuilder.cpp
         print/CPrintDialog.cpp
+        setup/IAppSetup.cpp
+        setup/CAppSetupLinux.cpp
+        setup/CAppSetupWin.cpp
+        setup/CAppSetupMac.cpp
+        setup/CCommandProcessor.cpp
+        setup/CLogHandler.cpp
 )
 
 if(UNIX AND NOT APPLE)
@@ -318,7 +326,6 @@ set( HDRS
         widgets/CColorChooser.h
         helpers/Platform.h
         helpers/CFileExt.h
-        helpers/CAppOpts.h
         helpers/CSettings.h
         helpers/CInputDialog.h
         helpers/CPositionDialog.h
@@ -329,8 +336,6 @@ set( HDRS
         helpers/CLinksDialog.h
         helpers/CPhotoViewer.h
         helpers/CProgressDialog.h
-        helpers/CCommandProcessor.h
-        helpers/CAppSetup.h
         helpers/CDraw.h
         helpers/CValue.h
         helpers/CLimit.h
@@ -385,6 +390,7 @@ set( HDRS
         grid/CProjWizard.h
         grid/mitab.h
         mouse/IMouse.h
+        mouse/IMouseSelect.h
         mouse/IScrOpt.h
         mouse/CMouseDummy.h
         mouse/CMouseNormal.h
@@ -395,8 +401,11 @@ set( HDRS
         mouse/CMouseRangeTrk.h
         mouse/CMouseWptBubble.h
         mouse/CMousePrint.h
+        mouse/CMouseSelect.h
         mouse/CScrOptUnclutter.h
         mouse/CScrOptRangeTrk.h
+        mouse/CScrOptSelect.h
+        mouse/CScrOptPrint.h
         mouse/line/CScrOptEditLine.h
         mouse/line/CScrOptRangeLine.h
         mouse/line/IMouseEditLine.h
@@ -532,6 +541,13 @@ set( HDRS
         tool/CImportDatabase.h
         tool/CRoutinoDatabaseBuilder.h
         print/CPrintDialog.h
+        setup/CAppOpts.h
+        setup/CAppSetupLinux.h
+        setup/CAppSetupWin.h
+        setup/CAppSetupMac.h
+        setup/CCommandProcessor.h
+        setup/CLogHandler.h
+        setup/IAppSetup.h
 )
 
 if(UNIX AND NOT APPLE)
@@ -579,6 +595,8 @@ set( UIS
     grid/IGridSetup.ui
     grid/IProjWizard.ui
     mouse/IScrOptRangeTrk.ui
+    mouse/IScrOptSelect.ui
+    mouse/IScrOptPrint.ui
     mouse/line/IScrOptEditLine.ui
     mouse/line/IScrOptRangeLine.ui
     gis/IGisWidget.ui
