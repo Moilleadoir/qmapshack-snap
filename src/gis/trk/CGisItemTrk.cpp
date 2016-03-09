@@ -1972,8 +1972,18 @@ void CGisItemTrk::drawHighlight(QPainter& p)
     {
         return;
     }
+
+
+    // draw the reduced track line
+    QList<QPolygonF> lines;
+    splitLineToViewport(lineSimple, p.viewport(), lines);
+
     p.setPen(QPen(QColor(255,0,0,100), penWidthHi, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-    p.drawPolyline(lineSimple);
+
+    for(const QPolygonF &line : lines)
+    {
+        p.drawPolyline(line);
+    }
 }
 
 void CGisItemTrk::drawRange(QPainter& p)
@@ -2465,7 +2475,7 @@ void CGisItemTrk::updateVisuals(quint32 visuals, const QString& who)
     }
 }
 
-void CGisItemTrk::setMouseFocusVisuals(const CGisItemTrk::trkpt_t * pt)
+void CGisItemTrk::setMouseFocusVisuals(const trkpt_t * pt)
 {
     if(!dlgDetails.isNull())
     {
@@ -2478,7 +2488,7 @@ void CGisItemTrk::setMouseFocusVisuals(const CGisItemTrk::trkpt_t * pt)
     }
 }
 
-void CGisItemTrk::setMouseRangeFocusVisuals(const CGisItemTrk::trkpt_t * pt1, const CGisItemTrk::trkpt_t * pt2)
+void CGisItemTrk::setMouseRangeFocusVisuals(const trkpt_t * pt1, const trkpt_t * pt2)
 {
     if(!dlgDetails.isNull())
     {
@@ -2491,7 +2501,7 @@ void CGisItemTrk::setMouseRangeFocusVisuals(const CGisItemTrk::trkpt_t * pt1, co
     }
 }
 
-void CGisItemTrk::setMouseClickFocusVisuals(const CGisItemTrk::trkpt_t * pt)
+void CGisItemTrk::setMouseClickFocusVisuals(const trkpt_t * pt)
 {
     if(!dlgDetails.isNull())
     {
