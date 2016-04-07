@@ -162,7 +162,6 @@ void CTableTrk::updateData()
     clear();
     addTopLevelItems(items);
     header()->resizeSections(QHeaderView::ResizeToContents);
-
 }
 
 
