@@ -156,6 +156,7 @@ CMainWindow::CMainWindow()
         connect(view, &CCanvas::sigMousePosition, this, &CMainWindow::slotMousePosition);
     }
     cfg.endGroup(); // Views
+    testForNoView();
 
     actionShowScale->setChecked      (cfg.value("isScaleVisible",   true).toBool());
     actionShowGrid->setChecked       (cfg.value("isGridVisible",   false).toBool());
@@ -200,6 +201,8 @@ CMainWindow::CMainWindow()
     prepareMenuForMac();
 
     loadGISData(qlOpts->arguments);
+
+    QTimer::singleShot(100, this, SLOT(slotSanityTest()));
 }
 
 void CMainWindow::prepareMenuForMac()
@@ -369,11 +372,13 @@ bool CMainWindow::profileIsWindow() const
 void CMainWindow::addMapList(CMapList * list, const QString &name)
 {
     tabMaps->addTab(list,name);
+    connect(list, &CMapList::sigSetupMapPath, this, &CMainWindow::slotSetupMapPath);
 }
 
 void CMainWindow::addDemList(CDemList * list, const QString &name)
 {
     tabDem->addTab(list,name);
+    connect(list, &CDemList::sigSetupDemPath, this, &CMainWindow::slotSetupDemPath);
 }
 
 void CMainWindow::addWidgetToTab(QWidget * w)
@@ -498,6 +503,8 @@ void CMainWindow::slotAddCanvas()
     connect(canvas, &CCanvas::sigMousePosition, this, &CMainWindow::slotMousePosition);
 
     tabWidget->setCurrentWidget(canvas);
+
+    testForNoView();
 }
 
 void CMainWindow::slotCloneCanvas()
@@ -536,6 +543,30 @@ void CMainWindow::slotCloneCanvas()
     cfg.endGroup();
     cfg.endGroup();
     cfg.endGroup();
+
+    testForNoView();
+}
+
+void CMainWindow::testForNoView()
+{
+    if(tabWidget->count() == 0)
+    {
+        QLabel * label = new QLabel(tabWidget);
+        label->setAlignment(Qt::AlignCenter);
+        label->setWordWrap(true);
+        label->setText(tr("Use <b>Menu->View->Add Map View</b> to open a new view. Or <b>Menu->File->Load Map View</b> to restore a saved one. Or click <a href='newview'>here</a>."));
+        label->setObjectName("NoViewInfo");
+        connect(label, &QLabel::linkActivated, this, &CMainWindow::slotLinkActivated);
+        tabWidget->addTab(label, "*");
+        return;
+    }
+
+    QLabel * label = tabWidget->findChild<QLabel*>("NoViewInfo");
+
+    if(label && tabWidget->count() > 1)
+    {
+        delete label;
+    }
 }
 
 void CMainWindow::slotTabCloseRequest(int i)
@@ -543,6 +574,8 @@ void CMainWindow::slotTabCloseRequest(int i)
     QMutexLocker lock(&CMapItem::mutexActiveMaps);
 
     delete tabWidget->widget(i);
+
+    testForNoView();
 }
 
 static inline bool compareNames(QString s1, QString s2)
@@ -912,6 +945,14 @@ void CMainWindow::slotPrintMap()
     }
 }
 
+void CMainWindow::slotLinkActivated(const QString& link)
+{
+    if(link == "newview")
+    {
+        actionAddMapView->trigger();
+    }
+}
+
 void CMainWindow::slotSetupWptIcons()
 {
     CWptIconDialog dlg(this);
@@ -1010,4 +1051,24 @@ void CMainWindow::dropEvent(QDropEvent *event)
     loadGISData(filenames);
 
     event->acceptProposedAction();
+}
+
+void CMainWindow::slotSanityTest()
+{
+
+    projPJ pjsrc = pj_init_plus("+init=epsg:32661");
+    if(pjsrc == nullptr)
+    {
+        QMessageBox::critical(this, tr("Fatal...")
+                              ,tr("QMapShack detected a badly installed Proj4 library. The translation tables for EPSG projections usually stored in /usr/share/proj are missing. Please contact the package maintainer of your ditribution to fix it.")
+                              ,QMessageBox::Close);
+
+        deleteLater();
+        return;
+    }
+
+    pj_free(pjsrc);
+
+
+    qDebug() << "Sanity test passed.";
 }
