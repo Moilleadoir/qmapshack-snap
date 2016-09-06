@@ -37,8 +37,10 @@ public:
     {
         subpt_t() = default;
         subpt_t(const QPointF& pt);
+        subpt_t(const QPointF& pt, const QString &name);
         QPointF coord;
         QPointF pixel;
+        QString name;
         qint32 ele = NOINT;
     };
 
@@ -46,6 +48,7 @@ public:
     {
         point_t() = default;
         point_t(const QPointF &pt);
+        point_t(const QPointF &pt, const QString &name);
         void resetElevation();
         QVector<subpt_t> subpts;
     };

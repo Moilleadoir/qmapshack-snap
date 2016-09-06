@@ -691,6 +691,7 @@ void CGisItemRte::readRouteDataFromGisLine(const SGisLine &l)
         rtept.lon = pt.coord.x() * RAD_TO_DEG;
         rtept.lat = pt.coord.y() * RAD_TO_DEG;
         rtept.ele = pt.ele;
+        rtept.name = pt.name;
     }
 
     if(doAutoRouting)

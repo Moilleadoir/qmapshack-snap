@@ -1270,7 +1270,7 @@ void CGisItemTrk::findWaypointsCloseBy(CProgressDialog& progress, quint32& curre
         }
     }
 
-    updateVisuals(eVisualDetails|eVisualPlot|eVisualProject, "findWaypointsCloseBy()");
+    updateVisuals(eVisualDetails|eVisualPlot, "findWaypointsCloseBy()");
 }
 
 bool CGisItemTrk::isCloseTo(const QPointF& pos)

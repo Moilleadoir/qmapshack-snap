@@ -25,11 +25,20 @@ IGisLine::subpt_t::subpt_t(const QPointF& pt)
     : coord(pt)
 {
 }
+IGisLine::subpt_t::subpt_t(const QPointF& pt, const QString &nm)
+    : coord(pt)
+    , name(nm)
+{
+}
 
 IGisLine::point_t::point_t(const QPointF& pt)
+    : subpt_t(pt)
 {
-    coord = pt;
-    pixel = pt;
+}
+
+IGisLine::point_t::point_t(const QPointF& pt, const QString& nm)
+    : subpt_t(pt,nm)
+{
 }
 
 void IGisLine::point_t::resetElevation()

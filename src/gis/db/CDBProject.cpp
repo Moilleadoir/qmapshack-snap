@@ -24,11 +24,11 @@
 #include "gis/db/macros.h"
 #include "gis/gpx/CGpxProject.h"
 #include "gis/ovl/CGisItemOvlArea.h"
+#include "gis/prj/CDetailsPrj.h"
 #include "gis/qms/CQmsProject.h"
 #include "gis/rte/CGisItemRte.h"
 #include "gis/trk/CGisItemTrk.h"
 #include "gis/wpt/CGisItemWpt.h"
-#include "gis/prj/CDetailsPrj.h"
 #include "helpers/CProgressDialog.h"
 #include "helpers/CSettings.h"
 
@@ -167,8 +167,11 @@ void CDBProject::postStatus(bool updateLostFound)
         query.prepare("SELECT COUNT(*) FROM folder2item WHERE parent=:parent");
         query.bindValue(":parent", getId());
         QUERY_EXEC();
+        query.next();
 
-        if(query.next() && (query.value(0).toInt() != info->keysChildren.count()))
+        const int nChildrenAttached = query.value(0).toInt();
+
+        if((nChildrenAttached != 0) && (nChildrenAttached != info->keysChildren.count()))
         {
             checkState = Qt::PartiallyChecked;
         }
@@ -619,7 +622,7 @@ bool CDBProject::save()
 
 
 void CDBProject::showItems(CEvtD2WShowItems * evt)
-{        
+{
     bool restoreDlgDetails = false;
     if(evt->addItemsExclusively)
     {
@@ -668,7 +671,6 @@ void CDBProject::showItems(CEvtD2WShowItems * evt)
     {
         edit();
     }
-
 }
 
 void CDBProject::hideItems(CEvtD2WHideItems * evt)

@@ -96,15 +96,16 @@ CGisListWks::CGisListWks(QWidget *parent)
 
     menuProjectWks   = new QMenu(this);
     actionEditPrj    = menuProjectWks->addAction(QIcon("://icons/32x32/EditDetails.png"), tr("Edit.."         ), this, SLOT(slotEditPrj()));
+    actionCopyPrj    = menuProjectWks->addAction(QIcon("://icons/32x32/Copy.png"       ), tr("Copy to..."     ), this, SLOT(slotCopyProject()));
     actionShowOnMap  = menuProjectWks->addAction(QIcon("://icons/32x32/ShowAll.png"    ), tr("Show on Map"    ), this, SLOT(slotShowOnMap()));
     actionHideFrMap  = menuProjectWks->addAction(QIcon("://icons/32x32/ShowNone.png"   ), tr("Hide from Map"  ), this, SLOT(slotHideFrMap()));
+
 
     menuProjectWks->addSeparator();
     actionGroup = new QActionGroup(menuProjectWks);
     actionGroup->setExclusive(true);
     actionSortByTime = addSortAction(menuProjectWks, actionGroup, "://icons/32x32/Time.png", tr("Sort by Time"), IGisProject::eSortFolderTime);
     actionSortByName = addSortAction(menuProjectWks, actionGroup, "://icons/32x32/SortName.png", tr("Sort by Name"), IGisProject::eSortFolderName);
-
 
     menuProjectWks->addSeparator();
     actionSave       = menuProjectWks->addAction(QIcon("://icons/32x32/SaveGIS.png"    ), tr("Save"           ), this, SLOT(slotSaveProject()));
@@ -119,6 +120,7 @@ CGisListWks::CGisListWks(QWidget *parent)
 
     menuProjectDev  = new QMenu(this);
     menuProjectDev->addAction(actionEditPrj);
+    menuProjectDev->addAction(actionCopyPrj);
     menuProjectDev->addAction(actionShowOnMap);
     menuProjectDev->addAction(actionHideFrMap);
     menuProjectDev->addSeparator();
@@ -1699,6 +1701,11 @@ bool CGisListWks::event(QEvent * e)
             CDBProject * project =  getProjectById(evt->id, evt->db);
             if(project && project->askBeforClose())
             {
+                /*
+                    Tell the DB view that we aborted to hide the folder by posting it's
+                    current status.
+                 */
+                project->postStatus(false);
                 return false;
             }
             delete project;
@@ -1840,4 +1847,33 @@ void CGisListWks::slotSetSortMode(IGisProject::sorting_folder_e mode, bool check
     {
         project->setSortingFolder(mode);
     }
+}
+
+
+void CGisListWks::slotCopyProject()
+{
+    CGisListWksEditLock lock(true, IGisItem::mutexItems);
+
+    QList<IGisItem::key_t>  keys;
+
+    for(QTreeWidgetItem * item : selectedItems())
+    {
+        IGisProject * project = dynamic_cast<IGisProject*>(item);
+        if(project == nullptr)
+        {
+            continue;
+        }
+
+        const int N = project->childCount();
+        for(int i = 0; i < N; i++)
+        {
+            IGisItem * item = dynamic_cast<IGisItem*>(project->child(i));
+            if(item != nullptr)
+            {
+                keys << item->getKey();
+            }
+        }
+    }
+
+    CGisWidget::self().copyItemsByKey(keys);
 }

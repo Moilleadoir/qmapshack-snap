@@ -90,6 +90,22 @@ QString IDBFolder::getDBHost() const
     return db.hostName();
 }
 
+QString IDBFolder::getName() const
+{
+    return text(CGisListDB::eColumnName);
+}
+
+void IDBFolder::setName(const QString& name)
+{
+    QSqlQuery query(db);
+    query.prepare("UPDATE folders SET name=:name WHERE id=:id");
+    query.bindValue(":name", name);
+    query.bindValue(":id", getId());
+    QUERY_EXEC(return );
+
+    setupFromDB();
+}
+
 IDBFolderSql *IDBFolder::getDBFolder()
 {
     if(type() == eTypeDatabase)
@@ -379,6 +395,7 @@ void IDBFolder::remove()
     CGisWidget::self().postEventForWks(evt1);
 }
 
+
 void IDBFolder::setupFromDB()
 {
     if(id == 0)
@@ -594,4 +611,21 @@ void IDBFolder::sortItems(QList<CDBItem*>& items) const
         qSort(items.begin(), items.end(), &sortByName);
         break;
     }
+}
+
+
+bool IDBFolder::isSiblingFrom(IDBFolder * folder) const
+{
+    if(folder->getId() == getId())
+    {
+        return true;
+    }
+
+    IDBFolder * parentFolder = dynamic_cast<IDBFolder*>(parent());
+    if(parentFolder != nullptr)
+    {
+        return parentFolder->isSiblingFrom(folder);
+    }
+
+    return false;
 }
