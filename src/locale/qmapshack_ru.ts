@@ -267,7 +267,27 @@
 <context>
     <name>CDBProject</name>
     <message>
-        <location filename="../gis/db/CDBProject.cpp" line="223"/>
+        <location filename="../gis/db/CDBProject.cpp" line="112"/>
+        <source>Failed to load...</source>
+        <translation>Не удалось загрузить...</translation>
+    </message>
+    <message>
+        <location filename="../gis/db/CDBProject.cpp" line="113"/>
+        <source>Can&apos;t load file &quot;%1&quot; . It will be skipped.</source>
+        <translation>Загрузить файл %1 не удалось. Он будет пропущен.</translation>
+    </message>
+    <message>
+        <location filename="../gis/db/CDBProject.cpp" line="126"/>
+        <source>Project already in database...</source>
+        <translation>Проект уже в базе данных...</translation>
+    </message>
+    <message>
+        <location filename="../gis/db/CDBProject.cpp" line="127"/>
+        <source>The project &quot;%1&quot; has already been imported into the database. It will be skipped.</source>
+        <translation>Проект &quot;%1&quot; уже был загружен в базу данных. Он будет пропущен.</translation>
+    </message>
+    <message>
+        <location filename="../gis/db/CDBProject.cpp" line="278"/>
         <source>The item %1 has been changed by %2 (%3). 
 
 To solve this conflict you can create and save a clone, force your version or drop your version and take the one from the database</source>
@@ -276,47 +296,47 @@ To solve this conflict you can create and save a clone, force your version or dr
 Чтобы решить этот конфликт можно создать и сохранить клон, заставить вашу версию или бросить вашу версию и взять версию базы данных</translation>
     </message>
     <message>
-        <location filename="../gis/db/CDBProject.cpp" line="229"/>
+        <location filename="../gis/db/CDBProject.cpp" line="284"/>
         <source>Conflict with database...</source>
         <translation>Конфликт с базой данных ...</translation>
     </message>
     <message>
-        <location filename="../gis/db/CDBProject.cpp" line="230"/>
+        <location filename="../gis/db/CDBProject.cpp" line="285"/>
         <source>Clone &amp;&amp; Save</source>
         <translation>Клонировать и сохранить</translation>
     </message>
     <message>
-        <location filename="../gis/db/CDBProject.cpp" line="231"/>
+        <location filename="../gis/db/CDBProject.cpp" line="286"/>
         <source>Force Save</source>
         <translation>Принудительно сохранить</translation>
     </message>
     <message>
-        <location filename="../gis/db/CDBProject.cpp" line="232"/>
+        <location filename="../gis/db/CDBProject.cpp" line="287"/>
         <source>Take remote</source>
         <translation>Взять удаленная версия</translation>
     </message>
     <message>
-        <location filename="../gis/db/CDBProject.cpp" line="514"/>
+        <location filename="../gis/db/CDBProject.cpp" line="569"/>
         <source>Missing folder...</source>
         <translation>Отсутствует папка...</translation>
     </message>
     <message>
-        <location filename="../gis/db/CDBProject.cpp" line="515"/>
+        <location filename="../gis/db/CDBProject.cpp" line="570"/>
         <source>Failed to save project. The folder has been deleted in the database.</source>
         <translation>Не удалось сохранить проект.Папка удалена из базы данных.</translation>
     </message>
     <message>
-        <location filename="../gis/db/CDBProject.cpp" line="522"/>
+        <location filename="../gis/db/CDBProject.cpp" line="577"/>
         <source>Save ...</source>
         <translation>Сохранить...</translation>
     </message>
     <message>
-        <location filename="../gis/db/CDBProject.cpp" line="585"/>
+        <location filename="../gis/db/CDBProject.cpp" line="640"/>
         <source>Error</source>
         <translation>Ошибка</translation>
     </message>
     <message>
-        <location filename="../gis/db/CDBProject.cpp" line="585"/>
+        <location filename="../gis/db/CDBProject.cpp" line="640"/>
         <source>There was an unexpected database error:
 
 %1</source>
@@ -325,12 +345,12 @@ To solve this conflict you can create and save a clone, force your version or dr
 %1</translation>
     </message>
     <message>
-        <location filename="../gis/db/CDBProject.cpp" line="700"/>
+        <location filename="../gis/db/CDBProject.cpp" line="755"/>
         <source>The project &apos;%1&apos; is about to update itself from the database. However there are changes not saved.</source>
         <translation>Проект &apos;%1&apos; собирается обновить себя. Однако есть не сохраненные изменения.</translation>
     </message>
     <message>
-        <location filename="../gis/db/CDBProject.cpp" line="701"/>
+        <location filename="../gis/db/CDBProject.cpp" line="756"/>
         <source>Save changes?</source>
         <translation>Сохранить изменения?</translation>
     </message>
@@ -1090,21 +1110,21 @@ To solve this conflict you can create and save a clone, force your version or dr
         <translation>В движении: - (-)</translation>
     </message>
     <message>
-        <location filename="../gis/trk/CGisItemTrk.cpp" line="1248"/>
-        <location filename="../gis/trk/CGisItemTrk.cpp" line="1261"/>
-        <location filename="../gis/trk/CGisItemTrk.cpp" line="1317"/>
-        <location filename="../gis/trk/CGisItemTrk.cpp" line="1361"/>
-        <location filename="../gis/trk/CGisItemTrk.cpp" line="1500"/>
+        <location filename="../gis/trk/CGisItemTrk.cpp" line="1221"/>
+        <location filename="../gis/trk/CGisItemTrk.cpp" line="1234"/>
+        <location filename="../gis/trk/CGisItemTrk.cpp" line="1290"/>
+        <location filename="../gis/trk/CGisItemTrk.cpp" line="1334"/>
+        <location filename="../gis/trk/CGisItemTrk.cpp" line="1473"/>
         <source>track</source>
         <translation>трек</translation>
     </message>
     <message>
-        <location filename="../gis/trk/CGisItemTrk.cpp" line="1452"/>
+        <location filename="../gis/trk/CGisItemTrk.cpp" line="1425"/>
         <source>Hide point %1.</source>
         <translation>Скрыть точку %1.</translation>
     </message>
     <message>
-        <location filename="../gis/trk/CGisItemTrk.cpp" line="1456"/>
+        <location filename="../gis/trk/CGisItemTrk.cpp" line="1429"/>
         <source>Hide points %1..%2.</source>
         <translation>Скрыть точки %1  %2.</translation>
     </message>
@@ -1185,47 +1205,47 @@ To solve this conflict you can create and save a clone, force your version or dr
         <translation>Расстояние: %1 %2</translation>
     </message>
     <message>
-        <location filename="../gis/trk/CGisItemTrk.cpp" line="1307"/>
+        <location filename="../gis/trk/CGisItemTrk.cpp" line="1280"/>
         <source>Permanently removed points %1..%2</source>
         <translation>Удалены навсегда все точки %1 ... %2</translation>
     </message>
     <message>
-        <location filename="../gis/trk/CGisItemTrk.cpp" line="1485"/>
+        <location filename="../gis/trk/CGisItemTrk.cpp" line="1458"/>
         <source>Show points.</source>
         <translation>Показать точки.</translation>
     </message>
     <message>
-        <location filename="../gis/trk/CGisItemTrk.cpp" line="2019"/>
+        <location filename="../gis/trk/CGisItemTrk.cpp" line="1992"/>
         <source>Changed name</source>
         <translation>Измененное имя</translation>
     </message>
     <message>
-        <location filename="../gis/trk/CGisItemTrk.cpp" line="2025"/>
+        <location filename="../gis/trk/CGisItemTrk.cpp" line="1998"/>
         <source>Changed comment</source>
         <translation>Изменен комментарий</translation>
     </message>
     <message>
-        <location filename="../gis/trk/CGisItemTrk.cpp" line="2031"/>
+        <location filename="../gis/trk/CGisItemTrk.cpp" line="2004"/>
         <source>Changed description</source>
         <translation>Изменено описание</translation>
     </message>
     <message>
-        <location filename="../gis/trk/CGisItemTrk.cpp" line="2037"/>
+        <location filename="../gis/trk/CGisItemTrk.cpp" line="2010"/>
         <source>Changed links</source>
         <translation>Изменены ссылки</translation>
     </message>
     <message>
-        <location filename="../gis/trk/CGisItemTrk.cpp" line="2048"/>
+        <location filename="../gis/trk/CGisItemTrk.cpp" line="2021"/>
         <source>Changed elevation of point %1 to %2 %3</source>
         <translation>Изменена высота точки %1 до %2 %3</translation>
     </message>
     <message>
-        <location filename="../gis/trk/CGisItemTrk.cpp" line="2072"/>
+        <location filename="../gis/trk/CGisItemTrk.cpp" line="2045"/>
         <source>Changed activity to &apos;%1&apos; for complete track.</source>
         <translation>Изменено мероприятие на &apos;%1&apos; для полного трека.</translation>
     </message>
     <message>
-        <location filename="../gis/trk/CGisItemTrk.cpp" line="2111"/>
+        <location filename="../gis/trk/CGisItemTrk.cpp" line="2084"/>
         <source>Changed activity to &apos;%1&apos; for range(%2..%3).</source>
         <translation>Изменен мероприятие на &apos;%1&apos; для интервала (%2..%3).</translation>
     </message>
@@ -1302,7 +1322,7 @@ To solve this conflict you can create and save a clone, force your version or dr
     <message>
         <location filename="../gis/trk/filter/filter.cpp" line="372"/>
         <source>Converted subpoints from routing to track points</source>
-        <translation>Преобразованы подточки от маршрутных до путевых точек</translation>
+        <translation>Преобразованы подточки от маршрутных в путевые точки</translation>
     </message>
     <message>
         <location filename="../qlgt/converter.cpp" line="195"/>
@@ -1396,141 +1416,151 @@ To solve this conflict you can create and save a clone, force your version or dr
 <context>
     <name>CGisListDB</name>
     <message>
-        <location filename="../gis/CGisListDB.cpp" line="83"/>
+        <location filename="../gis/CGisListDB.cpp" line="84"/>
         <source>Due to changes in the database system QMapShack forgot about the filename of your database &apos;%1&apos;. You have to select it again in the next step.</source>
         <translation>Вследствие изменений в системе базы данных QMapShack забыл имя файла базы данных &apos;%1&apos;. Выбрать его снова на следующем шаге.</translation>
     </message>
     <message>
-        <location filename="../gis/CGisListDB.cpp" line="84"/>
+        <location filename="../gis/CGisListDB.cpp" line="85"/>
         <source>Select database file.</source>
         <translation>Выбрать файл базы данных.</translation>
     </message>
     <message>
-        <location filename="../gis/CGisListDB.cpp" line="117"/>
+        <location filename="../gis/CGisListDB.cpp" line="118"/>
         <source>Add Database</source>
         <translation>Добавить базу данных</translation>
     </message>
     <message>
-        <location filename="../gis/CGisListDB.cpp" line="120"/>
+        <location filename="../gis/CGisListDB.cpp" line="121"/>
         <source>Add Folder</source>
         <translation>Добавить папку</translation>
     </message>
     <message>
-        <location filename="../gis/CGisListDB.cpp" line="121"/>
+        <location filename="../gis/CGisListDB.cpp" line="122"/>
         <source>Rename Folder</source>
         <translation>Переименовать папку</translation>
     </message>
     <message>
-        <location filename="../gis/CGisListDB.cpp" line="122"/>
+        <location filename="../gis/CGisListDB.cpp" line="123"/>
         <source>Copy Folder</source>
         <translation>Копировать папку</translation>
     </message>
     <message>
-        <location filename="../gis/CGisListDB.cpp" line="123"/>
+        <location filename="../gis/CGisListDB.cpp" line="124"/>
         <source>Move Folder</source>
         <translation>Переместить папку</translation>
     </message>
     <message>
-        <location filename="../gis/CGisListDB.cpp" line="124"/>
+        <location filename="../gis/CGisListDB.cpp" line="125"/>
         <source>Delete Folder</source>
         <translation>Удалить папку</translation>
     </message>
     <message>
-        <location filename="../gis/CGisListDB.cpp" line="125"/>
+        <location filename="../gis/CGisListDB.cpp" line="127"/>
+        <source>Import from Files...</source>
+        <translation>Импортировать файлы...</translation>
+    </message>
+    <message>
+        <location filename="../gis/CGisListDB.cpp" line="128"/>
         <source>Export to GPX...</source>
         <translation>Экспортировать до GPX...</translation>
     </message>
     <message>
-        <location filename="../gis/CGisListDB.cpp" line="128"/>
-        <location filename="../gis/CGisListDB.cpp" line="141"/>
+        <location filename="../gis/CGisListDB.cpp" line="131"/>
+        <location filename="../gis/CGisListDB.cpp" line="147"/>
         <source>Delete Item</source>
         <translation>Удалить элемент</translation>
     </message>
     <message>
-        <location filename="../gis/CGisListDB.cpp" line="132"/>
+        <location filename="../gis/CGisListDB.cpp" line="135"/>
         <source>Search Database</source>
         <translation>Искать в базе данных</translation>
     </message>
     <message>
-        <location filename="../gis/CGisListDB.cpp" line="133"/>
+        <location filename="../gis/CGisListDB.cpp" line="136"/>
         <source>Sync. with Database</source>
         <translation>Синхронизировать с базой данных</translation>
     </message>
     <message>
-        <location filename="../gis/CGisListDB.cpp" line="134"/>
+        <location filename="../gis/CGisListDB.cpp" line="137"/>
         <source>Remove Database</source>
         <translation>Удалить базу данных</translation>
     </message>
     <message>
-        <location filename="../gis/CGisListDB.cpp" line="138"/>
+        <location filename="../gis/CGisListDB.cpp" line="144"/>
         <source>Empty</source>
-        <translation>Пустой</translation>
+        <translation>Удалить все элементы</translation>
     </message>
     <message>
-        <location filename="../gis/CGisListDB.cpp" line="437"/>
+        <location filename="../gis/CGisListDB.cpp" line="444"/>
         <source>Remove database...</source>
         <translation>Удалить базу данных...</translation>
     </message>
     <message>
-        <location filename="../gis/CGisListDB.cpp" line="437"/>
+        <location filename="../gis/CGisListDB.cpp" line="444"/>
         <source>Do you really want to remove &apos;%1&apos; from the list?</source>
         <translation>Вы уверены что хотите удалить &apos;%1&apos; из списка?</translation>
     </message>
     <message>
-        <location filename="../gis/CGisListDB.cpp" line="501"/>
+        <location filename="../gis/CGisListDB.cpp" line="508"/>
         <source>Delete database folder...</source>
         <translation>Удалить папку с базы данных...</translation>
     </message>
     <message>
-        <location filename="../gis/CGisListDB.cpp" line="501"/>
+        <location filename="../gis/CGisListDB.cpp" line="508"/>
         <source>Are you sure you want to delete selected folders and all subfolders from the database?</source>
         <translation>Вы уверены что хотите удалить все выбранные папки вместе с  вложенными папками с базы данных?</translation>
     </message>
     <message>
-        <location filename="../gis/CGisListDB.cpp" line="669"/>
+        <location filename="../gis/CGisListDB.cpp" line="676"/>
         <source>Bad operation....</source>
         <translation>Неверная операция...</translation>
     </message>
     <message>
-        <location filename="../gis/CGisListDB.cpp" line="669"/>
+        <location filename="../gis/CGisListDB.cpp" line="676"/>
         <source>The target folder is a subfolder of the one to move. This will not work.</source>
         <translation>Целевая папка есть вложенная папка папки для перемещения. Это не возможно.</translation>
     </message>
     <message>
-        <location filename="../gis/CGisListDB.cpp" line="728"/>
+        <location filename="../gis/CGisListDB.cpp" line="735"/>
         <source>Folder name...</source>
         <translation>Имя папки...</translation>
     </message>
     <message>
-        <location filename="../gis/CGisListDB.cpp" line="728"/>
+        <location filename="../gis/CGisListDB.cpp" line="735"/>
         <source>Rename folder:</source>
         <translation>Переименовать папку:</translation>
     </message>
     <message>
-        <location filename="../gis/CGisListDB.cpp" line="749"/>
-        <location filename="../gis/CGisListDB.cpp" line="770"/>
+        <location filename="../gis/CGisListDB.cpp" line="756"/>
+        <location filename="../gis/CGisListDB.cpp" line="777"/>
         <source>Remove items...</source>
         <translation>Удалить элементы...</translation>
     </message>
     <message>
-        <location filename="../gis/CGisListDB.cpp" line="749"/>
+        <location filename="../gis/CGisListDB.cpp" line="756"/>
         <source>Are you sure you want to delete all items from Lost&amp;Found? This will remove them permanently.</source>
         <translation>Вы уверены что хотите удалить все элементы от &apos;Потеряно и найдено&apos;? Это удалит их навсегда.</translation>
     </message>
     <message>
-        <location filename="../gis/CGisListDB.cpp" line="770"/>
+        <location filename="../gis/CGisListDB.cpp" line="777"/>
         <source>Are you sure you want to delete all selected items from Lost&amp;Found? This will remove them permanently.</source>
         <translation>Вы уверены что хотите удалить все выбранные элементы от &apos;Потеряно и найдено&apos;? Это удалит их навсегда.</translation>
     </message>
     <message>
-        <location filename="../gis/CGisListDB.cpp" line="857"/>
+        <location filename="../gis/CGisListDB.cpp" line="864"/>
         <source>Are you sure you want to delete &apos;%1&apos; from folder &apos;%2&apos;?</source>
         <translation>Вы уверены что хотите удалить &apos;%1&apos; от папки &apos;%2&apos;?</translation>
     </message>
     <message>
-        <location filename="../gis/CGisListDB.cpp" line="858"/>
+        <location filename="../gis/CGisListDB.cpp" line="865"/>
         <source>Delete...</source>
         <translation>Удалить...</translation>
+    </message>
+    <message>
+        <location filename="../gis/CGisListDB.cpp" line="1055"/>
+        <source>Import GIS Data...</source>
+        <translation>Импортировать данные GIS...</translation>
     </message>
 </context>
 <context>
@@ -1738,27 +1768,27 @@ To solve this conflict you can create and save a clone, force your version or dr
 <context>
     <name>CGisWidget</name>
     <message>
-        <location filename="../gis/CGisWidget.cpp" line="144"/>
+        <location filename="../gis/CGisWidget.cpp" line="110"/>
         <source>Load project...</source>
         <translation>Загрузить проект...</translation>
     </message>
     <message>
-        <location filename="../gis/CGisWidget.cpp" line="144"/>
+        <location filename="../gis/CGisWidget.cpp" line="110"/>
         <source>The project &quot;%1&quot; is already in the workspace.</source>
         <translation>Проект &quot;%1&quot; уже в рабочей области.</translation>
     </message>
     <message>
-        <location filename="../gis/CGisWidget.cpp" line="549"/>
+        <location filename="../gis/CGisWidget.cpp" line="515"/>
         <source>Copy items...</source>
         <translation>Копировать элемент ...</translation>
     </message>
     <message>
-        <location filename="../gis/CGisWidget.cpp" line="677"/>
+        <location filename="../gis/CGisWidget.cpp" line="643"/>
         <source>Cut Track...</source>
         <translation>Вырезать трек...</translation>
     </message>
     <message>
-        <location filename="../gis/CGisWidget.cpp" line="677"/>
+        <location filename="../gis/CGisWidget.cpp" line="643"/>
         <source>Do you want to delete the original track?</source>
         <translation>Хотите ли вы удалить оригинальный трек?</translation>
     </message>
@@ -1945,48 +1975,48 @@ line %2, column %3:
 <context>
     <name>CMainWindow</name>
     <message>
-        <location filename="../CMainWindow.cpp" line="589"/>
+        <location filename="../CMainWindow.cpp" line="588"/>
         <source>Use &lt;b&gt;Menu-&gt;View-&gt;Add Map View&lt;/b&gt; to open a new view. Or &lt;b&gt;Menu-&gt;File-&gt;Load Map View&lt;/b&gt; to restore a saved one. Or click &lt;a href=&apos;newview&apos;&gt;here&lt;/a&gt;.</source>
         <translation>Использовать &lt;b&gt;Меню→Вид→Добавить окно карты&lt;/b&gt; чтобы открыть новый вид. Или &lt;b&gt;Меню→Файл→Загрузить вид карты&lt;/b&gt; для восстановления сохраненного вида. Или нажмите &lt;a href=&apos;newview&apos;&gt;здесь&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="../CMainWindow.cpp" line="717"/>
+        <location filename="../CMainWindow.cpp" line="716"/>
         <source>Ele: %1%2</source>
         <translation>Высота: %1%2</translation>
     </message>
     <message>
-        <location filename="../CMainWindow.cpp" line="733"/>
+        <location filename="../CMainWindow.cpp" line="732"/>
         <source>[Grid: %1]</source>
         <translation>[Сетка: %1]</translation>
     </message>
     <message>
-        <location filename="../CMainWindow.cpp" line="868"/>
+        <location filename="../CMainWindow.cpp" line="867"/>
         <source>Load GIS Data...</source>
         <translation>Загрузить данные GIS...</translation>
     </message>
     <message>
-        <location filename="../CMainWindow.cpp" line="902"/>
+        <location filename="../CMainWindow.cpp" line="901"/>
         <source>Select output file</source>
         <translation>Выбрать выходной файл</translation>
     </message>
     <message>
-        <location filename="../CMainWindow.cpp" line="902"/>
-        <location filename="../CMainWindow.cpp" line="928"/>
+        <location filename="../CMainWindow.cpp" line="901"/>
+        <location filename="../CMainWindow.cpp" line="927"/>
         <source>QMapShack View (*.view)</source>
         <translation>Вид QMapShack (*.view)</translation>
     </message>
     <message>
-        <location filename="../CMainWindow.cpp" line="928"/>
+        <location filename="../CMainWindow.cpp" line="927"/>
         <source>Select file to load</source>
         <translation>Выбрать файл для загрузки</translation>
     </message>
     <message>
-        <location filename="../CMainWindow.cpp" line="1107"/>
+        <location filename="../CMainWindow.cpp" line="1106"/>
         <source>Fatal...</source>
-        <translation>Неустранимо...</translation>
+        <translation>Неустранимая ошибка...</translation>
     </message>
     <message>
-        <location filename="../CMainWindow.cpp" line="1108"/>
+        <location filename="../CMainWindow.cpp" line="1107"/>
         <source>QMapShack detected a badly installed Proj4 library. The translation tables for EPSG projections usually stored in /usr/share/proj are missing. Please contact the package maintainer of your distribution to fix it.</source>
         <translation>QMapShack обнаружил плохо установленную библиотеку Proj4. Таблицы перевода для EPSG проекций обычно охраняемые в /usr/share/pro отсутствуют.Пожалуйста, сообщите об этом администратору пакета.</translation>
     </message>
@@ -2188,48 +2218,47 @@ If it&apos;s no fun, why don&apos;t you provide maps? Well to host maps ready fo
     <message>
         <location filename="../map/CMapIMG.cpp" line="247"/>
         <source>Major highway</source>
-        <translation>Шоссе</translation>
+        <translation>Автомагистраль</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="248"/>
         <source>Principal highway</source>
-        <translation>Главное шоссе</translation>
+        <translation>Шоссе основное</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="249"/>
         <source>Other highway</source>
-        <translation>Другое шоссе</translation>
+        <translation>Прочие загородные дороги</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="250"/>
         <source>Arterial road</source>
-        <translation>Магистраль</translation>
+        <translation>Городская магистраль</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="251"/>
         <source>Collector road</source>
-        <translatorcomment>???</translatorcomment>
-        <translation>Collector road</translation>
+        <translation>Улица крупная</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="252"/>
         <source>Residential street</source>
-        <translation>Улица</translation>
+        <translation>Улица малая</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="253"/>
         <source>Alley/Private road</source>
-        <translation>аллея, частная дорога</translation>
+        <translation>Переулок, внутриквартальный проезд</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="254"/>
         <source>Highway ramp, low speed</source>
-        <translation>Рампа, низкая скорость</translation>
+        <translation>Наклонный съезд с путепровода</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="255"/>
         <source>Highway ramp, high speed</source>
-        <translation>Рампа, высокая скорость</translation>
+        <translation>Наклонный съезд с путепровода скоростной</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="256"/>
@@ -2239,8 +2268,7 @@ If it&apos;s no fun, why don&apos;t you provide maps? Well to host maps ready fo
     <message>
         <location filename="../map/CMapIMG.cpp" line="257"/>
         <source>Major highway connector</source>
-        <translatorcomment>???</translatorcomment>
-        <translation>Major highway connector</translation>
+        <translation>Соединительное шоссе</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="258"/>
@@ -2260,17 +2288,17 @@ If it&apos;s no fun, why don&apos;t you provide maps? Well to host maps ready fo
     <message>
         <location filename="../map/CMapIMG.cpp" line="261"/>
         <source>Trail</source>
-        <translation>След</translation>
+        <translation>Тропа</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="262"/>
         <source>Stream</source>
-        <translation>Поток</translation>
+        <translation>Ручей</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="263"/>
         <source>Time zone</source>
-        <translation>Часовой пояс</translation>
+        <translation>Граница часового пояса</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="264"/>
@@ -2281,12 +2309,12 @@ If it&apos;s no fun, why don&apos;t you provide maps? Well to host maps ready fo
     <message>
         <location filename="../map/CMapIMG.cpp" line="266"/>
         <source>State/province border</source>
-        <translation>Государственная граница</translation>
+        <translation>Граница области</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="267"/>
         <source>County/parish border</source>
-        <translation>Региональная граница</translation>
+        <translation>Граница района, округа</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="268"/>
@@ -2301,37 +2329,37 @@ If it&apos;s no fun, why don&apos;t you provide maps? Well to host maps ready fo
     <message>
         <location filename="../map/CMapIMG.cpp" line="270"/>
         <source>Minor land contour</source>
-        <translation>Малый контур</translation>
+        <translation>Горизонталь вспомогательная</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="271"/>
         <source>Intermediate land contour</source>
-        <translation>Промежуточный контур</translation>
+        <translation>Горизонталь основная</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="272"/>
         <source>Major land contour</source>
-        <translation>Главный контур</translation>
+        <translation>Горизонталь утолщённая</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="273"/>
         <source>Minor depth contour</source>
-        <translation>Малый контур глубины</translation>
+        <translation>Изобата вспомогательная</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="274"/>
         <source>Intermediate depth contour</source>
-        <translation>Промежуточный контур глубины</translation>
+        <translation>Изобата основная</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="275"/>
         <source>Major depth contour</source>
-        <translation>Главный контур глубины</translation>
+        <translation>Изобата утолщённая</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="276"/>
         <source>Intermittent stream</source>
-        <translation>Пересыхающая река</translation>
+        <translation>Пересыхающая река, ручей или канава</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="277"/>
@@ -2357,22 +2385,22 @@ If it&apos;s no fun, why don&apos;t you provide maps? Well to host maps ready fo
     <message>
         <location filename="../map/CMapIMG.cpp" line="281"/>
         <source>Hazard boundary</source>
-        <translation>граница опасной области</translation>
+        <translation>Опасность для плавания</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="346"/>
         <source>Large urban area (&amp;gt;200K)</source>
-        <translation>Большой городской район (&amp;gt;200 000)</translation>
+        <translation>Городcкая застройка (&amp;gt;200 тыс.ж)</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="347"/>
         <source>Small urban area (&amp;lt;200K)</source>
-        <translation>Маленький городской район (&amp;lt;200K)</translation>
+        <translation>Городcкая застройка (&amp;lt;200 тыс.ж)</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="348"/>
         <source>Rural housing area</source>
-        <translation>Область сельского жилья</translation>
+        <translation>Застройка сельского типа</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="349"/>
@@ -2382,12 +2410,12 @@ If it&apos;s no fun, why don&apos;t you provide maps? Well to host maps ready fo
     <message>
         <location filename="../map/CMapIMG.cpp" line="350"/>
         <source>Parking lot</source>
-        <translation>Стоянка</translation>
+        <translation>Автостоянка</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="351"/>
         <source>Parking garage</source>
-        <translation>Гараж</translation>
+        <translation>Гаражи</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="352"/>
@@ -2397,37 +2425,37 @@ If it&apos;s no fun, why don&apos;t you provide maps? Well to host maps ready fo
     <message>
         <location filename="../map/CMapIMG.cpp" line="353"/>
         <source>Shopping center</source>
-        <translation>Торговый центр</translation>
+        <translation>Место для торговли</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="354"/>
         <source>Marina</source>
-        <translation>Марина</translation>
+        <translation>Пристань</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="355"/>
         <source>University/College</source>
-        <translation>Университет / колледж</translation>
+        <translation>Территория университета или колледжа</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="356"/>
         <source>Hospital</source>
-        <translation>Больница</translation>
+        <translation>Территория больницы</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="357"/>
         <source>Industrial complex</source>
-        <translation>Промышленный комплекс</translation>
+        <translation>Промышленная зона</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="358"/>
         <source>Reservation</source>
-        <translation>Заповедник</translation>
+        <translation>Резервация, заповедник</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="360"/>
         <source>Man-made area</source>
-        <translation>Застроенная область</translation>
+        <translation>Здание, искусственное сооружение</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="361"/>
@@ -2437,7 +2465,7 @@ If it&apos;s no fun, why don&apos;t you provide maps? Well to host maps ready fo
     <message>
         <location filename="../map/CMapIMG.cpp" line="362"/>
         <source>Golf course</source>
-        <translation>Гольф</translation>
+        <translation>Поле для гольфа</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="363"/>
@@ -2461,7 +2489,7 @@ If it&apos;s no fun, why don&apos;t you provide maps? Well to host maps ready fo
         <location filename="../map/CMapIMG.cpp" line="369"/>
         <location filename="../map/CMapIMG.cpp" line="370"/>
         <source>State park</source>
-        <translation>Государственный парк</translation>
+        <translation>Парк регионального значения</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="371"/>
@@ -2471,7 +2499,7 @@ If it&apos;s no fun, why don&apos;t you provide maps? Well to host maps ready fo
     <message>
         <location filename="../map/CMapIMG.cpp" line="372"/>
         <source>Ocean</source>
-        <translation>Океан</translation>
+        <translation>Море/океан</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="373"/>
@@ -2490,50 +2518,50 @@ If it&apos;s no fun, why don&apos;t you provide maps? Well to host maps ready fo
         <location filename="../map/CMapIMG.cpp" line="377"/>
         <location filename="../map/CMapIMG.cpp" line="384"/>
         <source>Large lake</source>
-        <translation>Большое озеро</translation>
+        <translation>Озеро большое</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="378"/>
         <location filename="../map/CMapIMG.cpp" line="379"/>
         <source>Medium lake</source>
-        <translation>Среднее озеро</translation>
+        <translation>Озеро среднее</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="380"/>
         <location filename="../map/CMapIMG.cpp" line="381"/>
         <source>Small lake</source>
-        <translation>Маленькое озеро</translation>
+        <translation>Озеро малое</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="382"/>
         <location filename="../map/CMapIMG.cpp" line="383"/>
         <source>Major lake</source>
-        <translation>Большое озеро</translation>
+        <translation>Озеро крупное</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="386"/>
         <source>Major River</source>
-        <translation>Большая река</translation>
+        <translation>Река крупная</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="387"/>
         <source>Large River</source>
-        <translation>Большая река</translation>
+        <translation>Река большая</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="388"/>
         <source>Medium River</source>
-        <translation>Средняя река</translation>
+        <translation>Река средняя</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="389"/>
         <source>Small River</source>
-        <translation>Малая река</translation>
+        <translation>Река малая</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="392"/>
         <source>Intermittent water</source>
-        <translation>Пересыхающая вода</translation>
+        <translation>Пересыхающая река или озеро</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="393"/>
@@ -2548,12 +2576,12 @@ If it&apos;s no fun, why don&apos;t you provide maps? Well to host maps ready fo
     <message>
         <location filename="../map/CMapIMG.cpp" line="395"/>
         <source>Orchard/Plantation</source>
-        <translation>Фруктовый сад / плантация</translation>
+        <translation>Фруктовый сад или огород</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="396"/>
         <source>Scrub</source>
-        <translation>кустарник</translation>
+        <translation>Кустарник</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="397"/>
@@ -2563,7 +2591,7 @@ If it&apos;s no fun, why don&apos;t you provide maps? Well to host maps ready fo
     <message>
         <location filename="../map/CMapIMG.cpp" line="398"/>
         <source>Flat</source>
-        <translation>Плоский</translation>
+        <translation>Плато</translation>
     </message>
     <message>
         <location filename="../map/CMapIMG.cpp" line="399"/>
@@ -3946,17 +3974,17 @@ line %2, column %3:
 <context>
     <name>CTcxProject</name>
     <message>
-        <location filename="../gis/tcx/CTcxProject.cpp" line="50"/>
+        <location filename="../gis/tcx/CTcxProject.cpp" line="49"/>
         <source>Failed to load file %1...</source>
         <translation>Не удалось загрузить файл %1...</translation>
     </message>
     <message>
-        <location filename="../gis/tcx/CTcxProject.cpp" line="72"/>
+        <location filename="../gis/tcx/CTcxProject.cpp" line="71"/>
         <source>Failed to open %1</source>
         <translation>Не удалось открыть %1</translation>
     </message>
     <message>
-        <location filename="../gis/tcx/CTcxProject.cpp" line="83"/>
+        <location filename="../gis/tcx/CTcxProject.cpp" line="82"/>
         <source>Failed to read: %1
 line %2, column %3:
  %4</source>
@@ -3965,54 +3993,14 @@ line %2, column %3:
 %4</translation>
     </message>
     <message>
-        <location filename="../gis/tcx/CTcxProject.cpp" line="90"/>
+        <location filename="../gis/tcx/CTcxProject.cpp" line="89"/>
         <source>Not a TCX file: %1</source>
         <translation>Нет файла TCX: %1</translation>
     </message>
     <message>
-        <location filename="../gis/tcx/CTcxProject.cpp" line="100"/>
-        <source>This TCX file contains at least 1 workout, but neither an activity nor a course. As workouts do not contain position data, they can not be imported to QMapShack.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gis/tcx/CTcxProject.cpp" line="105"/>
+        <location filename="../gis/tcx/CTcxProject.cpp" line="94"/>
         <source>This TCX file does not contain any activity or course: %1</source>
         <translation>В файлеTCX %1 нет мероприятий или курсов</translation>
-    </message>
-    <message>
-        <location filename="../gis/tcx/CTcxProject.cpp" line="286"/>
-        <source>No track in selected project...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gis/tcx/CTcxProject.cpp" line="287"/>
-        <source>The project you have selected does not contain any track ! A course with no track makes no sense. &lt;b&gt;Please add a track to this project and try again.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gis/tcx/CTcxProject.cpp" line="297"/>
-        <source>Track with invalid timestamps...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gis/tcx/CTcxProject.cpp" line="298"/>
-        <source>The track you have selected contains trackpoints with invalid timestamps. Device might not accept the generated TCX course file if left as is. &lt;b&gt;Do you want to apply a filter with constant speed (10 m/s) and continue?&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../gis/tcx/CTcxProject.cpp" line="378"/>
-        <source>Failed to create file &apos;%1&apos;</source>
-        <translation type="unfinished">Не удалось создать файл &apos;%1&apos;</translation>
-    </message>
-    <message>
-        <location filename="../gis/tcx/CTcxProject.cpp" line="388"/>
-        <source>Failed to write file &apos;%1&apos;</source>
-        <translation type="unfinished">Не удалось записать файл &apos;%1&apos;</translation>
-    </message>
-    <message>
-        <location filename="../gis/tcx/CTcxProject.cpp" line="400"/>
-        <source>Saving GIS data failed...</source>
-        <translation type="unfinished">Не удалось записать данные GIS...</translation>
     </message>
 </context>
 <context>
@@ -4342,17 +4330,22 @@ Ivo Kronenberg</translation>
         <translation>Удалить первую часть трека и сохранить вторую</translation>
     </message>
     <message>
-        <location filename="../gis/trk/ICutTrk.ui" line="27"/>
+        <location filename="../gis/trk/ICutTrk.ui" line="30"/>
         <source>Keep both parts of the track</source>
         <translation>Сохранить обе части трека</translation>
     </message>
     <message>
-        <location filename="../gis/trk/ICutTrk.ui" line="37"/>
+        <location filename="../gis/trk/ICutTrk.ui" line="43"/>
         <source>Keep first part of the track and delete second one</source>
         <translation>Сохранить первую часть трека и удалить вторую</translation>
     </message>
     <message>
-        <location filename="../gis/trk/ICutTrk.ui" line="60"/>
+        <location filename="../gis/trk/ICutTrk.ui" line="55"/>
+        <source>Cut Mode:</source>
+        <translation>Режим вырезания:</translation>
+    </message>
+    <message>
+        <location filename="../gis/trk/ICutTrk.ui" line="136"/>
         <source>Check this to store the result into a new track. 
 
 If you keep both parts of the track you have to create new ones. 
@@ -4366,7 +4359,7 @@ If you want to keep just one half you can simply remove the points, or check thi
 </translation>
     </message>
     <message>
-        <location filename="../gis/trk/ICutTrk.ui" line="67"/>
+        <location filename="../gis/trk/ICutTrk.ui" line="143"/>
         <source>Create a new track</source>
         <translation>Создать новый трек</translation>
     </message>
@@ -5592,12 +5585,12 @@ If you want to keep just one half you can simply remove the points, or check thi
     <message>
         <location filename="../gis/trk/filter/IFilterSubPt2Pt.ui" line="35"/>
         <source>&lt;b&gt;Convert track subpoints to points&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Преобразовать подточки трека до путевых точек&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;Преобразовать подточки трека в путевые точки&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../gis/trk/filter/IFilterSubPt2Pt.ui" line="47"/>
         <source>Convert subpoints obtained from routing to ordinary track points </source>
-        <translation>Преобразовать подточки маршрутизации до путевых точек</translation>
+        <translation>Преобразовать подточки маршрутизации в путевые точки</translation>
     </message>
     <message>
         <location filename="../gis/trk/filter/IFilterSubPt2Pt.ui" line="54"/>
@@ -5705,70 +5698,70 @@ It is either a new item or it has been deleted in the database by someone else.<
 <context>
     <name>IGisProject</name>
     <message>
-        <location filename="../gis/prj/IGisProject.cpp" line="110"/>
+        <location filename="../gis/prj/IGisProject.cpp" line="154"/>
         <source>Save project?</source>
         <translation>Сохранить проект?</translation>
     </message>
     <message>
-        <location filename="../gis/prj/IGisProject.cpp" line="110"/>
+        <location filename="../gis/prj/IGisProject.cpp" line="154"/>
         <source>&lt;h3&gt;%1&lt;/h3&gt;The project was changed. Save before closing it?</source>
         <translation>&lt;h3&gt;%1&lt;/h3&gt;Проект изменен. Сохранить перед закрытием?</translation>
     </message>
     <message>
-        <location filename="../gis/prj/IGisProject.cpp" line="284"/>
+        <location filename="../gis/prj/IGisProject.cpp" line="328"/>
         <source>%1: Correlate tracks and waypoints.</source>
         <translation>%1: коррелировать треки и точек.</translation>
     </message>
     <message>
-        <location filename="../gis/prj/IGisProject.cpp" line="294"/>
+        <location filename="../gis/prj/IGisProject.cpp" line="338"/>
         <source>&lt;h3&gt;%1&lt;/h3&gt;Did that take too long for you? Do you want to skip correlation of tracks and waypoints for this project in the future?</source>
         <translation>&lt;h3&gt;%1&lt;/h3&gt;Было медленно? Хотите ли вы пропустить корреляцию треков и путевых точек для этого проекта в будущем?</translation>
     </message>
     <message>
-        <location filename="../gis/prj/IGisProject.cpp" line="295"/>
+        <location filename="../gis/prj/IGisProject.cpp" line="339"/>
         <source>Canceled correlation...</source>
         <translation>Корреляция отменена ...</translation>
     </message>
     <message>
-        <location filename="../gis/prj/IGisProject.cpp" line="340"/>
-        <location filename="../gis/prj/IGisProject.cpp" line="397"/>
+        <location filename="../gis/prj/IGisProject.cpp" line="384"/>
+        <location filename="../gis/prj/IGisProject.cpp" line="437"/>
         <source>Save &quot;%1&quot; to...</source>
         <translation>Сохранить &quot;%1&quot; до...</translation>
     </message>
     <message>
-        <location filename="../gis/prj/IGisProject.cpp" line="482"/>
+        <location filename="../gis/prj/IGisProject.cpp" line="522"/>
         <source>&lt;br/&gt;
 Filename: %1</source>
         <translation>&lt;br/&gt;
 Имя файла: %1</translation>
     </message>
     <message>
-        <location filename="../gis/prj/IGisProject.cpp" line="487"/>
+        <location filename="../gis/prj/IGisProject.cpp" line="527"/>
         <source>Waypoints: %1</source>
         <translation>Путевые точки: %1</translation>
     </message>
     <message>
-        <location filename="../gis/prj/IGisProject.cpp" line="491"/>
+        <location filename="../gis/prj/IGisProject.cpp" line="531"/>
         <source>Tracks: %1</source>
         <translation>Треки: %1</translation>
     </message>
     <message>
-        <location filename="../gis/prj/IGisProject.cpp" line="495"/>
+        <location filename="../gis/prj/IGisProject.cpp" line="535"/>
         <source>Routes: %1</source>
         <translation>Маршруты: %1</translation>
     </message>
     <message>
-        <location filename="../gis/prj/IGisProject.cpp" line="499"/>
+        <location filename="../gis/prj/IGisProject.cpp" line="539"/>
         <source>Areas: %1</source>
         <translation>Область: %1</translation>
     </message>
     <message>
-        <location filename="../gis/prj/IGisProject.cpp" line="619"/>
+        <location filename="../gis/prj/IGisProject.cpp" line="659"/>
         <source>Are you sure you want to delete &apos;%1&apos; from project &apos;%2&apos;?</source>
         <translation>Вы уверены что хотите удалить &apos;%1&apos; от проекта &apos;%2&apos;?</translation>
     </message>
     <message>
-        <location filename="../gis/prj/IGisProject.cpp" line="620"/>
+        <location filename="../gis/prj/IGisProject.cpp" line="660"/>
         <source>Delete...</source>
         <translation>Удалить...</translation>
     </message>
@@ -5961,338 +5954,338 @@ Filename: %1</source>
         <translation>Окно</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="109"/>
+        <location filename="../IMainWindow.ui" line="110"/>
         <source>?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="117"/>
+        <location filename="../IMainWindow.ui" line="118"/>
         <source>Project</source>
         <translation>Проект</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="128"/>
+        <location filename="../IMainWindow.ui" line="129"/>
         <source>Tool</source>
         <translation>Инструмент</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="153"/>
+        <location filename="../IMainWindow.ui" line="154"/>
         <source>Maps</source>
         <translation>Карты</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="196"/>
+        <location filename="../IMainWindow.ui" line="197"/>
         <source>Dig. Elev. Model (DEM)</source>
         <translation>Цифровая модель рельефа (ЦМР)</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="235"/>
+        <location filename="../IMainWindow.ui" line="236"/>
         <source>Data</source>
         <translation>Данные</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="253"/>
+        <location filename="../IMainWindow.ui" line="254"/>
         <source>Route</source>
         <translation>Маршрутизация</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="287"/>
-        <location filename="../IMainWindow.ui" line="290"/>
+        <location filename="../IMainWindow.ui" line="288"/>
+        <location filename="../IMainWindow.ui" line="291"/>
         <source>Add Map View</source>
         <translation>Добавить окно карты</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="293"/>
+        <location filename="../IMainWindow.ui" line="294"/>
         <source>Ctrl+T</source>
         <translation>Ctrl+T</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="308"/>
+        <location filename="../IMainWindow.ui" line="309"/>
         <source>Show Scale</source>
         <translation>Показать масштаб</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="320"/>
+        <location filename="../IMainWindow.ui" line="321"/>
         <source>Setup Map Font</source>
         <translation>Настройка шрифта карты</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="335"/>
+        <location filename="../IMainWindow.ui" line="336"/>
         <source>Show Grid</source>
         <translation>Показать сетку</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="338"/>
+        <location filename="../IMainWindow.ui" line="339"/>
         <source>Ctrl+G</source>
         <translation>Ctrl+G</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="350"/>
+        <location filename="../IMainWindow.ui" line="351"/>
         <source>Setup Grid</source>
         <translation>Настройка сетки</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="353"/>
+        <location filename="../IMainWindow.ui" line="354"/>
         <source>Ctrl+Alt+G</source>
         <translation>Ctrl+Alt+G</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="368"/>
+        <location filename="../IMainWindow.ui" line="369"/>
         <source>Flip Mouse Wheel</source>
         <translation>Флип колесо мыши</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="380"/>
-        <location filename="../IMainWindow.ui" line="383"/>
+        <location filename="../IMainWindow.ui" line="381"/>
+        <location filename="../IMainWindow.ui" line="384"/>
         <source>Setup Map Paths</source>
         <translation>Настройка пути карт</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="398"/>
+        <location filename="../IMainWindow.ui" line="399"/>
         <source>POI Text</source>
         <translation>Текст для точек интереса</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="413"/>
+        <location filename="../IMainWindow.ui" line="414"/>
         <source>Night / Day</source>
         <translation>Ночь/день</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="428"/>
+        <location filename="../IMainWindow.ui" line="429"/>
         <source>Map Tool Tip</source>
         <translation>Подсказка карты</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="431"/>
+        <location filename="../IMainWindow.ui" line="432"/>
         <source>Ctrl+I</source>
         <translation>Ctrl+I</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="443"/>
+        <location filename="../IMainWindow.ui" line="444"/>
         <source>Setup DEM Paths</source>
         <translation>Настройка пути ЦМР</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="455"/>
+        <location filename="../IMainWindow.ui" line="456"/>
         <source>About</source>
         <translation>О программе</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="467"/>
+        <location filename="../IMainWindow.ui" line="468"/>
         <source>Help</source>
         <translation>Справки</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="470"/>
+        <location filename="../IMainWindow.ui" line="471"/>
         <source>F1</source>
         <translation>F1</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="482"/>
-        <location filename="../IMainWindow.ui" line="485"/>
+        <location filename="../IMainWindow.ui" line="483"/>
+        <location filename="../IMainWindow.ui" line="486"/>
         <source>Setup Map View</source>
         <translation>Настройка вида карт</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="497"/>
+        <location filename="../IMainWindow.ui" line="498"/>
         <source>Load GIS Data</source>
         <translation>Загрузить данные GIS</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="500"/>
+        <location filename="../IMainWindow.ui" line="501"/>
         <source>Load projects from file</source>
         <translation>Загрузить проекты из файла</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="503"/>
+        <location filename="../IMainWindow.ui" line="504"/>
         <source>Ctrl+L</source>
         <translation>Ctrl+L</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="515"/>
+        <location filename="../IMainWindow.ui" line="516"/>
         <source>Save All GIS Data</source>
         <translation>Сохранить все данные GIS</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="518"/>
+        <location filename="../IMainWindow.ui" line="519"/>
         <source>Save all projects in the workspace</source>
         <translation>Сохранить все проекты в рабочей области</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="521"/>
+        <location filename="../IMainWindow.ui" line="522"/>
         <source>Ctrl+S</source>
         <translation>Ctrl+S</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="533"/>
+        <location filename="../IMainWindow.ui" line="534"/>
         <source>Setup Time Zone</source>
         <translation>Настройка часового пояса</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="545"/>
+        <location filename="../IMainWindow.ui" line="546"/>
         <source>Add empty project</source>
         <translation>Добавить пустой проект</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="560"/>
+        <location filename="../IMainWindow.ui" line="561"/>
         <source>Search Google</source>
         <translation>Поиск Google</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="572"/>
+        <location filename="../IMainWindow.ui" line="573"/>
         <source>Close all projects</source>
         <translation>Закрыть все проекты</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="575"/>
+        <location filename="../IMainWindow.ui" line="576"/>
         <source>F8</source>
         <translation>F8</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="587"/>
+        <location filename="../IMainWindow.ui" line="588"/>
         <source>Setup Units</source>
         <translation>Настройка единиц</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="599"/>
+        <location filename="../IMainWindow.ui" line="600"/>
         <source>Setup Workspace</source>
         <translation>Настройка рабочей области</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="602"/>
+        <location filename="../IMainWindow.ui" line="603"/>
         <source>Setup save on exit.</source>
         <translatorcomment>Tooltip for &quot;Setup workspace&quot; menu entry?</translatorcomment>
         <translation>Настройка рабочей области.</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="614"/>
+        <location filename="../IMainWindow.ui" line="615"/>
         <source>Import Database from QLandkarte</source>
         <translation>Импортировать базу данных QLandkarte</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="617"/>
+        <location filename="../IMainWindow.ui" line="618"/>
         <source>Import QLandkarte GT database</source>
         <translation>Импортировать базу данных QLandkarte</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="629"/>
+        <location filename="../IMainWindow.ui" line="630"/>
         <source>VRT Builder</source>
         <translation>VRT строитель</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="632"/>
+        <location filename="../IMainWindow.ui" line="633"/>
         <source>GUI front end to gdalbuildvrt</source>
         <translation>Графический внешний интерфейс для gdalbuildvrt</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="644"/>
+        <location filename="../IMainWindow.ui" line="645"/>
         <source>Store Map View</source>
         <translation>Сохранить вид карты</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="647"/>
+        <location filename="../IMainWindow.ui" line="648"/>
         <source>Write current active map and DEM list including the properties to a file</source>
         <translatorcomment>Tooltip??</translatorcomment>
         <translation>Сохранить вид карты</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="659"/>
+        <location filename="../IMainWindow.ui" line="660"/>
         <source>Load Map View</source>
         <translation>Загрузить вид карты</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="662"/>
+        <location filename="../IMainWindow.ui" line="663"/>
         <source>Restore view with active map and DEM list including the properties from a file</source>
         <translatorcomment>Tooltip??</translatorcomment>
         <translation>Загрузить вид карты</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="677"/>
+        <location filename="../IMainWindow.ui" line="678"/>
         <source>Ext. Profile</source>
         <translation>Расширенный профиль</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="680"/>
+        <location filename="../IMainWindow.ui" line="681"/>
         <source>Ctrl+E</source>
         <translation>Ctrl+E</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="692"/>
+        <location filename="../IMainWindow.ui" line="693"/>
         <source>Close</source>
         <translation>Закрыть</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="695"/>
+        <location filename="../IMainWindow.ui" line="696"/>
         <source>Ctrl+Q</source>
         <translation>Ctrl+Q</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="707"/>
+        <location filename="../IMainWindow.ui" line="708"/>
         <source>Clone Map View</source>
         <translation>Клонировать вид карты</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="710"/>
+        <location filename="../IMainWindow.ui" line="711"/>
         <source>Ctrl+Shift+T</source>
         <translation>Ctrl+Shift+T</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="722"/>
+        <location filename="../IMainWindow.ui" line="723"/>
         <source>Create Routino Database</source>
         <translation>Создать базу данных Routino</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="734"/>
+        <location filename="../IMainWindow.ui" line="735"/>
         <source>Save(Print) Map Screenshot</source>
         <translation>Сохранить (печатать) снимок экрана</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="737"/>
+        <location filename="../IMainWindow.ui" line="738"/>
         <source>Print a selected area of the map</source>
         <translation>Печать выбранную область карты</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="740"/>
+        <location filename="../IMainWindow.ui" line="741"/>
         <source>Ctrl+P</source>
         <translation>Ctrl+P</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="752"/>
+        <location filename="../IMainWindow.ui" line="753"/>
         <source>Setup Coord. Format</source>
         <translation>Настройка форматы координат</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="755"/>
+        <location filename="../IMainWindow.ui" line="756"/>
         <source>Change the format coordinates are displayed</source>
         <translation>Изменить формат отображения координат</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="767"/>
+        <location filename="../IMainWindow.ui" line="768"/>
         <source>Setup Map Background</source>
         <translation>Настройка фона карт</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="779"/>
+        <location filename="../IMainWindow.ui" line="780"/>
         <source>Setup Waypoint Icons</source>
         <translation>Настройка значков для точек трека</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="782"/>
+        <location filename="../IMainWindow.ui" line="783"/>
         <source>Setup path to custom icons</source>
         <translation>Настройка пути к пользовательским значкам</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="791"/>
+        <location filename="../IMainWindow.ui" line="792"/>
         <source>Close Tab</source>
         <translation>Закрыть вкладкy</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="794"/>
+        <location filename="../IMainWindow.ui" line="795"/>
         <source>Ctrl+W</source>
         <translation>Ctrl+W</translation>
     </message>
     <message>
-        <location filename="../IMainWindow.ui" line="803"/>
+        <location filename="../IMainWindow.ui" line="804"/>
         <source>Quickstart Help</source>
         <translation>Помощь для быстрого старта</translation>
     </message>
@@ -6599,19 +6592,24 @@ I don&apos;t want to read the documentation!</source>
         <translation>Добавить точку</translation>
     </message>
     <message>
-        <location filename="../plot/IPlot.cpp" line="541"/>
+        <location filename="../plot/IPlot.cpp" line="99"/>
+        <source>Cut...</source>
+        <translation>Вырезать...</translation>
+    </message>
+    <message>
+        <location filename="../plot/IPlot.cpp" line="542"/>
         <source>Hold CTRL key for vertical zoom, only.
 Hold ALT key for horizontal zoom, only.</source>
         <translation>Удерживать клавишу CTRL для вертикального увеличения.
 Удерживать клавишу ALT для горизонтального увеличения.</translation>
     </message>
     <message>
-        <location filename="../plot/IPlot.cpp" line="696"/>
+        <location filename="../plot/IPlot.cpp" line="697"/>
         <source>No or bad data.</source>
         <translation>Отсутствующие или неверные данные.</translation>
     </message>
     <message>
-        <location filename="../plot/IPlot.cpp" line="1296"/>
+        <location filename="../plot/IPlot.cpp" line="1298"/>
         <source>Select output file</source>
         <translation>Выбрать выходной файл</translation>
     </message>

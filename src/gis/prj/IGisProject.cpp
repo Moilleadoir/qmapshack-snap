@@ -21,6 +21,7 @@
 #include "gis/CGisDraw.h"
 #include "gis/CGisListWks.h"
 #include "gis/IGisItem.h"
+#include "gis/fit/CFitProject.h"
 #include "gis/gpx/CGpxProject.h"
 #include "gis/ovl/CGisItemOvlArea.h"
 #include "gis/prj/CDetailsPrj.h"
@@ -28,6 +29,8 @@
 #include "gis/qms/CQmsProject.h"
 #include "gis/tcx/CTcxProject.h"
 #include "gis/rte/CGisItemRte.h"
+#include "gis/slf/CSlfProject.h"
+#include "gis/tcx/CTcxProject.h"
 #include "gis/trk/CGisItemTrk.h"
 #include "gis/wpt/CGisItemWpt.h"
 #include "helpers/CProgressDialog.h"
@@ -93,6 +96,48 @@ IGisProject::IGisProject(type_e type, const QString &filename, IDevice *parent)
 IGisProject::~IGisProject()
 {
     delete dlgDetails;
+}
+
+IGisProject * IGisProject::create(const QString filename, CGisListWks * parent)
+{
+    IGisProject *item = nullptr;
+    QString suffix = QFileInfo(filename).suffix().toLower();
+    if(suffix == "gpx")
+    {
+        item = new CGpxProject(filename, parent);
+    }
+    else if(suffix == "qms")
+    {
+        item = new CQmsProject(filename, parent);
+    }
+    else if(suffix == "slf")
+    {
+        item = new CSlfProject(filename);
+
+        // the CSlfProject does not - as the other C*Project - register itself in the list
+        // of currently opened projects. This is done manually here.
+        if(parent)
+        {
+            parent->addProject(item);
+        }
+    }
+    else if(suffix == "fit")
+    {
+        item = new CFitProject(filename, parent);
+    }
+    else if(suffix == "tcx")
+    {
+        item = new CTcxProject(filename, parent);
+    }
+
+
+    if(item && !item->isValid())
+    {
+        delete item;
+        item = nullptr;
+    }
+
+    return item;
 }
 
 QString IGisProject::html2Dev(const QString& str)
