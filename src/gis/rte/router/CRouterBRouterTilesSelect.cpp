@@ -90,7 +90,8 @@ CRouterBRouterTilesSelect::CRouterBRouterTilesSelect(QWidget *parent)
     statusLayout->addWidget(statusLabel);
     statusLayout->addWidget(statusProgress);
 
-    statusLabel->setText("test");
+    statusLabel->setText(tr("available routing-data is being determined."));
+    statusProgress->setVisible(false);
 
     errorLabel = new QLabel(this);
     outerLayout->addWidget(errorLabel);
@@ -99,10 +100,10 @@ CRouterBRouterTilesSelect::CRouterBRouterTilesSelect(QWidget *parent)
     QHBoxLayout * buttonsLayout = new QHBoxLayout();
     outerLayout->addLayout(buttonsLayout);
 
-    pushSelectOutdated = new QPushButton("select outdated", this);
-    pushClearSelection = new QPushButton("clear selection", this);
-    pushDeleteSelection = new QPushButton("delete selection", this);
-    pushDownload = new QPushButton("Download", this);
+    pushSelectOutdated = new QPushButton(tr("Select outdated"), this);
+    pushClearSelection = new QPushButton(tr("Clear Selection"), this);
+    pushDeleteSelection = new QPushButton(tr("Delete selection"), this);
+    pushDownload = new QPushButton(tr("Download"), this);
 
     buttonsLayout->addWidget(pushSelectOutdated);
     buttonsLayout->addWidget(pushClearSelection);
@@ -683,7 +684,7 @@ void CRouterBRouterTilesSelect::slotTileToolTipChanged(const QPoint & tile)
 
     if (status->file != nullptr)
     {
-        selectArea->setTileToolTip(QString(tr("being downloaded (%1 of %2)"))
+        selectArea->setTileToolTip(QString(tr("being downloaded: %1 of %2"))
                                    .arg(formatSize(status->progressVal))
                                    .arg(formatSize(status->progressMax)));
     }
@@ -703,7 +704,7 @@ void CRouterBRouterTilesSelect::slotTileToolTipChanged(const QPoint & tile)
     }
     else if (status->isRemote)
     {
-        selectArea->setTileToolTip(QString(tr("no local data, online available (%1, %2)"))
+        selectArea->setTileToolTip(QString(tr("no local data, online available: %1 (%2)"))
                                    .arg(formatSize(status->remoteSize))
                                    .arg(status->remoteDate.toString(Qt::DefaultLocaleShortDate)));
     }
