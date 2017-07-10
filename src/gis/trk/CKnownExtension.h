@@ -40,6 +40,8 @@ public:
      */
     static void initGarminTPXv1(const IUnit &units, const QString &ns);
 
+    static void initClueTrustTPXv1(const IUnit &units, const QString &ns);
+
     static const QString internalSlope;    //< name of internally derived slope
     static const QString internalSpeed;    //< name of internally derived speed
     static const QString internalEle;      //< name of internally derived elevation (DEM)
@@ -91,6 +93,7 @@ private:
     }
 
     static void initMioTPX(const IUnit &units);
+
 };
 
 #endif // CKNOWNEXTENSION_H
